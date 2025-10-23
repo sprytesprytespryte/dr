@@ -363,6 +363,8 @@
         <div style="text-align: center; margin: 1rem 0;">
             <p id="recipeCount" style="color: var(--primary); font-weight: bold; font-size: 1.1rem;"></p>
             <div style="margin: 1rem 0;">
+                <button id="myRecipesBtn" style="background: var(--primary); color: white; margin-right: 0.5rem;">📝 My Recipes</button>
+                <button id="publicRecipesBtn" style="background: #6c757d; margin-right: 0.5rem;">🌍 Community Recipes</button>
                 <button id="toggleViewBtn" style="background: var(--accent); color: var(--text); margin-right: 0.5rem;">📋 Category View</button>
                 <button id="toggleGridBtn" style="background: #6c757d;">🎛️ Grid View</button>
                 <button id="toggleSelectBtn" style="background: #17a2b8; margin-left: 0.5rem;">☑️ Select Mode</button>
@@ -374,8 +376,7 @@
             <span>Selected: <span id="selectedCount">0</span> recipe(s)</span>
             <button onclick="selectAllRecipes()" style="background: #28a745;">Select All</button>
             <button onclick="deselectAllRecipes()" style="background: #6c757d;">Deselect All</button>
-            <button onclick="shareSelectedRecipes()" style="background: #17a2b8;">Share Selected 📤</button>
-            <button onclick="shareAllRecipes()" style="background: #ffa500;">Share All Recipes 🌟</button>
+            <button onclick="exportAllRecipes()" style="background: #ffa500;">Export All Recipes 📁</button>
             <button onclick="exitSelectMode()" style="background: #dc3545;">Exit Select Mode</button>
         </div>
 
@@ -420,11 +421,31 @@
     <script>
         // Recipe management code will go here
         const recipes = JSON.parse(localStorage.getItem('donnaRecipes') || '[]');
+        const publicRecipes = JSON.parse(localStorage.getItem('donnaPublicRecipes') || '[]');
         let selectedRecipes = new Set();
         let selectMode = false;
+        let currentView = 'grid'; // 'grid' or 'category'
+        let showingPublicRecipes = false;
         
         function saveRecipes() {
             localStorage.setItem('donnaRecipes', JSON.stringify(recipes));
+        }
+
+        function savePublicRecipes() {
+            localStorage.setItem('donnaPublicRecipes', JSON.stringify(publicRecipes));
+        }
+
+        function addToPublicRecipes(recipe) {
+            // Add recipe to public repository with anonymous user info
+            const publicRecipe = {
+                ...recipe,
+                publicId: Date.now() + Math.random(),
+                addedBy: 'Anonymous User',
+                dateAddedToPublic: new Date().toISOString(),
+                isPublic: true
+            };
+            publicRecipes.unshift(publicRecipe);
+            savePublicRecipes();
         }
 
         // Notification system
@@ -636,17 +657,21 @@
         async function addRecipe(recipe, photoFile = null) {
             const photoData = await handlePhotoUpload(photoFile);
             
-            recipes.unshift({
+            const newRecipe = {
                 id: Date.now(),
                 ...recipe,
                 photo: photoData,
                 date: new Date().toISOString()
-            });
+            };
+            
+            recipes.unshift(newRecipe);
             saveRecipes();
+            
+            // Automatically add to public recipes
+            addToPublicRecipes(newRecipe);
+            
             renderRecipes();
         }
-
-        let currentView = 'grid'; // 'grid' or 'category'
 
         function renderRecipes(searchTerm = '') {
             if (currentView === 'grid') {
@@ -656,6 +681,10 @@
             }
         }
 
+        function getCurrentRecipes() {
+            return showingPublicRecipes ? publicRecipes : recipes;
+        }
+
         function renderGridView(searchTerm = '') {
             const recipeList = document.getElementById('recipeList');
             const categoryView = document.getElementById('categoryView');
@@ -663,15 +692,19 @@
             categoryView.style.display = 'none';
             recipeList.innerHTML = '';
 
-            const filteredRecipes = recipes.filter(recipe => 
+            const currentRecipes = getCurrentRecipes();
+            const filteredRecipes = currentRecipes.filter(recipe => 
                 recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 recipe.category.toLowerCase().includes(searchTerm.toLowerCase())
             );
 
             if (filteredRecipes.length === 0) {
+                const emptyMessage = showingPublicRecipes ? 
+                    'No community recipes yet! Add your recipes to share with everyone 🌍' :
+                    'No recipes in your hive yet! 🍯';
                 recipeList.innerHTML = `
                     <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #8a2be2;">
-                        <h3>🐝 No recipes in your hive yet! 🍯</h3>
+                        <h3>🐝 ${emptyMessage}</h3>
                         <p>Click the + button to add your first delicious recipe</p>
                     </div>
                 `;
@@ -688,10 +721,14 @@
                 const photoHtml = recipe.photo ? `<img src="${recipe.photo}" alt="${recipe.name}" class="recipe-photo">` : '';
                 const checkboxHtml = selectMode ? `
                     <div style="margin-bottom: 0.5rem;">
-                        <input type="checkbox" class="select-checkbox" onchange="toggleRecipeSelection(${recipe.id})" ${Array.from(selectedRecipes).some(selectedId => parseFloat(selectedId) === parseFloat(recipe.id)) ? 'checked' : ''}>
+                        <input type="checkbox" class="select-checkbox" onchange="toggleRecipeSelection(${recipe.id || recipe.publicId})" ${Array.from(selectedRecipes).some(selectedId => parseFloat(selectedId) === parseFloat(recipe.id || recipe.publicId)) ? 'checked' : ''}>
                         <label>Select this recipe</label>
                     </div>
                 ` : '';
+                
+                const authorInfo = showingPublicRecipes ? `<p style="font-size: 0.8em; color: #888; font-style: italic;">Shared by: ${recipe.addedBy || 'Anonymous'}</p>` : '';
+                const deleteButton = showingPublicRecipes ? '' : `<button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545;" data-recipe-id="${recipe.id}">Delete 🗑️</button>`;
+                
                 card.innerHTML = `
                     ${checkboxHtml}
                     ${photoHtml}
@@ -701,20 +738,20 @@
                     </div>
                     <div class="tag">${recipe.category}</div>
                     <p style="font-size: 0.9em; color: #666; margin: 0.5rem 0;">Added: ${recipeDate}</p>
+                    ${authorInfo}
                     <p><strong>Ingredients:</strong></p>
                     <p>${recipe.ingredients.split('\n').slice(0,3).join(', ')}${
                         recipe.ingredients.split('\n').length > 3 ? '...' : ''
                     }</p>
                     <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
-                        <button onclick="viewRecipe(${recipe.id}); event.stopPropagation();" style="background: #28a745;">View 👁️</button>
-                        <button onclick="shareRecipe(${recipe.id}); event.stopPropagation();" style="background: #17a2b8;">Share �</button>
-                        <button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545;" data-recipe-id="${recipe.id}">Delete 🗑️</button>
+                        <button onclick="viewRecipe(${recipe.id || recipe.publicId}, ${showingPublicRecipes}); event.stopPropagation();" style="background: #28a745;">View 👁️</button>
+                        ${deleteButton}
                     </div>
                 `;
                 
                 // Make entire card clickable (except in select mode)
                 if (!selectMode) {
-                    card.addEventListener('click', () => viewRecipe(recipe.id));
+                    card.addEventListener('click', () => viewRecipe(recipe.id || recipe.publicId, showingPublicRecipes));
                 }
                 recipeList.appendChild(card);
             });
@@ -729,15 +766,19 @@
             categoryView.style.display = 'block';
             categoryView.innerHTML = '';
 
-            const filteredRecipes = recipes.filter(recipe => 
+            const currentRecipes = getCurrentRecipes();
+            const filteredRecipes = currentRecipes.filter(recipe => 
                 recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 recipe.category.toLowerCase().includes(searchTerm.toLowerCase())
             );
 
             if (filteredRecipes.length === 0) {
+                const emptyMessage = showingPublicRecipes ? 
+                    'No community recipes yet! Add your recipes to share with everyone 🌍' :
+                    'No recipes in your hive yet! 🍯';
                 categoryView.innerHTML = `
                     <div style="text-align: center; padding: 3rem; color: #8a2be2;">
-                        <h3>🐝 No recipes in your hive yet! 🍯</h3>
+                        <h3>🐝 ${emptyMessage}</h3>
                         <p>Click the + button to add your first delicious recipe</p>
                     </div>
                 `;
@@ -773,16 +814,19 @@
                     </div>
                     ${sortedRecipes.map(recipe => {
                         const recipeDate = new Date(recipe.date).toLocaleDateString();
+                        const authorInfo = showingPublicRecipes ? ` • Shared by: ${recipe.addedBy || 'Anonymous'}` : '';
+                        const deleteButton = showingPublicRecipes ? '' : `<button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545; padding: 0.4rem 0.8rem;" data-recipe-id="${recipe.id}">🗑️</button>`;
+                        const editButton = showingPublicRecipes ? '' : `<button onclick="editRecipe(${recipe.id}); event.stopPropagation();" style="background: #ffa500; padding: 0.4rem 0.8rem;">✏️</button>`;
+                        
                         return `
-                            <div class="recipe-list-item" onclick="viewRecipe(${recipe.id})">
+                            <div class="recipe-list-item" onclick="viewRecipe(${recipe.id || recipe.publicId}, ${showingPublicRecipes})">
                                 <div>
                                     <div class="recipe-list-name">${recipe.name}</div>
-                                    <div class="recipe-list-date">Added: ${recipeDate}</div>
+                                    <div class="recipe-list-date">Added: ${recipeDate}${authorInfo}</div>
                                 </div>
                                 <div style="display: flex; gap: 0.5rem;">
-                                    <button onclick="shareRecipe(${recipe.id}); event.stopPropagation();" style="background: #17a2b8; padding: 0.4rem 0.8rem;">📤</button>
-                                    <button onclick="editRecipe(${recipe.id}); event.stopPropagation();" style="background: #ffa500; padding: 0.4rem 0.8rem;">✏️</button>
-                                    <button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545; padding: 0.4rem 0.8rem;" data-recipe-id="${recipe.id}">🗑️</button>
+                                    ${editButton}
+                                    ${deleteButton}
                                 </div>
                             </div>
                         `;
@@ -798,7 +842,8 @@
         function updateRecipeCount(count) {
             const countDisplay = document.getElementById('recipeCount');
             if (countDisplay) {
-                countDisplay.textContent = `${count} recipe${count !== 1 ? 's' : ''} found`;
+                const collectionName = showingPublicRecipes ? 'community' : 'personal';
+                countDisplay.textContent = `${count} ${collectionName} recipe${count !== 1 ? 's' : ''} found`;
             }
         }
 
@@ -831,19 +876,25 @@
             }
         }
 
-        function viewRecipe(id) {
-            const recipe = recipes.find(r => r.id == id); // Use == instead of === for loose comparison
+        function viewRecipe(id, isPublic = false) {
+            const currentRecipes = isPublic ? publicRecipes : recipes;
+            const recipe = currentRecipes.find(r => (r.id == id || r.publicId == id)); // Use == instead of === for loose comparison
             if (!recipe) return;
 
             const recipeDate = new Date(recipe.date).toLocaleDateString();
             const ingredientsList = recipe.ingredients.split('\n').filter(i => i.trim()).map(i => `<li>${i.trim()}</li>`).join('');
             const instructionsList = recipe.instructions.split('\n').filter(i => i.trim()).map((instruction, index) => `<li><strong>Step ${index + 1}:</strong> ${instruction.trim()}</li>`).join('');
             const photoHtml = recipe.photo ? `<img src="${recipe.photo}" alt="${recipe.name}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">` : '';
+            
+            const authorInfo = isPublic ? `<p style="font-size: 0.9em; color: #666; margin-bottom: 1rem; background: #e8f5e8; padding: 0.5rem; border-radius: 5px;">🌍 Shared by: ${recipe.addedBy || 'Anonymous User'}</p>` : '';
+            const editButton = isPublic ? '' : `<button onclick="editRecipe(${recipe.id})" style="background: #ffa500;">Edit Recipe ✏️</button>`;
+            const copyButton = `<button onclick="copyRecipeToPersonal(${isPublic ? recipe.publicId : recipe.id}, ${isPublic})" style="background: #17a2b8;">${isPublic ? 'Copy to My Recipes 📋' : 'Share to Community 🌍'}</button>`;
 
             document.getElementById('modalRecipeContent').innerHTML = `
                 <h2 style="color: var(--primary); margin-bottom: 0.5rem;">${recipe.name}</h2>
                 <div class="tag" style="margin-bottom: 1rem;">${recipe.category}</div>
                 <p style="font-size: 0.9em; color: #666; margin-bottom: 1.5rem;">Added: ${recipeDate}</p>
+                ${authorInfo}
                 ${photoHtml}
                 
                 <h3 style="color: var(--primary);">🥘 Ingredients:</h3>
@@ -853,8 +904,8 @@
                 <ol style="margin-bottom: 1.5rem;">${instructionsList}</ol>
                 
                 <div style="text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <button onclick="shareRecipe(${recipe.id})" style="background: #17a2b8;">Share Recipe 📤</button>
-                    <button onclick="editRecipe(${recipe.id})" style="background: #ffa500;">Edit Recipe ✏️</button>
+                    ${editButton}
+                    ${copyButton}
                     <button onclick="closeRecipeModal()" style="background: var(--primary);">Close 📖</button>
                 </div>
             `;
@@ -864,6 +915,37 @@
 
         function closeRecipeModal() {
             document.getElementById('recipeModal').style.display = 'none';
+        }
+
+        function copyRecipeToPersonal(id, fromPublic = false) {
+            const sourceRecipes = fromPublic ? publicRecipes : recipes;
+            const targetRecipes = fromPublic ? recipes : publicRecipes;
+            const recipe = sourceRecipes.find(r => (r.id == id || r.publicId == id));
+            
+            if (!recipe) return;
+            
+            if (fromPublic) {
+                // Copy from public to personal
+                const newRecipe = {
+                    id: Date.now(),
+                    name: recipe.name,
+                    category: recipe.category,
+                    ingredients: recipe.ingredients,
+                    instructions: recipe.instructions,
+                    photo: recipe.photo,
+                    date: new Date().toISOString(),
+                    copiedFrom: 'community'
+                };
+                recipes.unshift(newRecipe);
+                saveRecipes();
+                showNotification(`"${recipe.name}" copied to your personal recipes! 📋`, 'success');
+            } else {
+                // Share from personal to public
+                addToPublicRecipes(recipe);
+                showNotification(`"${recipe.name}" shared to community recipes! 🌍`, 'success');
+            }
+            
+            renderRecipes();
         }
 
         function editRecipe(id) {
@@ -947,53 +1029,18 @@
             showNotification('Recipe updated successfully! 🎉', 'success');
         }
 
-        function shareRecipe(id) {
-            const recipe = recipes.find(r => r.id == id); // Use == instead of === for loose comparison
-            if (!recipe) return;
 
-            // Create a clean version of the recipe for sharing (remove id and dates)
-            const shareableRecipe = {
-                name: recipe.name,
-                category: recipe.category,
-                ingredients: recipe.ingredients,
-                instructions: recipe.instructions
-            };
 
-            // Create shareable URL
-            const encodedRecipe = btoa(JSON.stringify(shareableRecipe));
-            const shareUrl = `${window.location.origin}${window.location.pathname}?recipe=${encodedRecipe}`;
-            
-            // Show share modal
-            document.getElementById('modalRecipeContent').innerHTML = `
-                <h2 style="color: var(--primary); margin-bottom: 1rem;">📤 Share Recipe: ${recipe.name}</h2>
-                
-                <div style="margin-bottom: 2rem;">
-                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Share Link:</h3>
-                    <div style="background: #f8f9fa; border: 2px solid var(--secondary); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                        <input type="text" id="shareUrl" value="${shareUrl}" 
-                               style="width: 100%; border: none; background: transparent; font-size: 0.9rem;" readonly>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button onclick="copyShareUrl()" style="background: #28a745;">Copy Link 📋</button>
-                        <button onclick="shareToWhatsApp('${encodeURIComponent(shareUrl)}')" style="background: #25D366;">WhatsApp 📱</button>
-                        <button onclick="shareToEmail('${encodeURIComponent(shareUrl)}', '${encodeURIComponent(recipe.name)}')" style="background: #dc3545;">Email 📧</button>
-                        ${navigator.share ? `<button onclick="nativeShare('${shareUrl}', '${recipe.name}')" style="background: #6f42c1;">Share 🔗</button>` : ''}
-                    </div>
-                </div>
 
-                <div style="margin-bottom: 2rem;">
-                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Recipe Text (Copy & Paste):</h3>
-                    <textarea id="recipeText" rows="10" readonly 
-                              style="width: 100%; border: 2px solid var(--secondary); border-radius: 8px; padding: 1rem; font-size: 0.9rem;">${formatRecipeText(recipe)}</textarea>
-                    <button onclick="copyRecipeText()" style="background: #17a2b8; margin-top: 0.5rem;">Copy Recipe Text 📝</button>
-                </div>
-                
-                <div style="text-align: center;">
-                    <button onclick="viewRecipe(${recipe.id})" style="background: #6c757d;">Back to Recipe ⬅️</button>
-                </div>
-            `;
-            
-            document.getElementById('recipeModal').style.display = 'block';
+        function copyRecipeText() {
+            const recipeTextArea = document.getElementById('recipeText');
+            recipeTextArea.select();
+            recipeTextArea.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(recipeTextArea.value).then(() => {
+                showNotification('Recipe text copied to clipboard! 📝', 'success');
+            }).catch(() => {
+                showNotification('Please manually copy the recipe text above.', 'info');
+            });
         }
 
         function formatRecipeText(recipe) {
@@ -1016,43 +1063,25 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             shareUrlInput.select();
             shareUrlInput.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(shareUrlInput.value).then(() => {
-                showNotification('Share link copied to clipboard! 📋', 'success');
+                showNotification('Export link copied to clipboard! 📋', 'success');
             }).catch(() => {
                 showNotification('Please manually copy the link above.', 'info');
             });
         }
 
-        function copyRecipeText() {
-            const recipeTextArea = document.getElementById('recipeText');
-            recipeTextArea.select();
-            recipeTextArea.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(recipeTextArea.value).then(() => {
-                showNotification('Recipe text copied to clipboard! 📝', 'success');
-            }).catch(() => {
-                showNotification('Please manually copy the recipe text above.', 'info');
-            });
-        }
-
         function shareToWhatsApp(url) {
-            const message = `Check out this delicious recipe I found! 🍽️\n\n${decodeURIComponent(url)}`;
+            const message = `Check out these delicious recipes! 🍽️\n\n${decodeURIComponent(url)}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
         }
 
-        function shareToEmail(url, recipeName) {
-            const subject = `Recipe: ${decodeURIComponent(recipeName)}`;
-            const body = `Hi! I wanted to share this amazing recipe with you:\n\n${decodeURIComponent(url)}\n\nEnjoy cooking! 🍽️`;
+        function shareToEmail(url, title) {
+            const subject = `Recipes: ${decodeURIComponent(title)}`;
+            const body = `Hi! I wanted to share these amazing recipes with you:\n\n${decodeURIComponent(url)}\n\nEnjoy cooking! 🍽️`;
             window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
         }
 
-        function nativeShare(url, recipeName) {
-            if (navigator.share) {
-                navigator.share({
-                    title: `Recipe: ${recipeName}`,
-                    text: 'Check out this delicious recipe!',
-                    url: url
-                }).catch(console.error);
-            }
-        }
+
+
 
         // Bulk selection functions
         function toggleRecipeSelection(id) {
@@ -1115,29 +1144,10 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             renderRecipes();
         }
 
-        function shareSelectedRecipes() {
-            if (selectedRecipes.size === 0) {
-                showNotification('Please select at least one recipe to share.', 'info');
-                return;
-            }
-            
-            const selectedRecipeData = Array.from(selectedRecipes).map(id => {
-                const recipe = recipes.find(r => parseFloat(r.id) === parseFloat(id));
-                return {
-                    name: recipe.name,
-                    category: recipe.category,
-                    ingredients: recipe.ingredients,
-                    instructions: recipe.instructions,
-                    photo: recipe.photo
-                };
-            });
-            
-            showMultipleRecipeShare(selectedRecipeData, `${selectedRecipes.size} Selected Recipes`);
-        }
 
-        function shareAllRecipes() {
+        function exportAllRecipes() {
             if (recipes.length === 0) {
-                showNotification('No recipes to share.', 'info');
+                showNotification('No recipes to export.', 'info');
                 return;
             }
             
@@ -1149,7 +1159,7 @@ Shared from Donna's Recipe Hive 🐝🍯`;
                 photo: recipe.photo
             }));
             
-            showMultipleRecipeShare(allRecipeData, 'All Recipes from Donna\'s Recipe Hive');
+            showMultipleRecipeShare(allRecipeData, 'Export All Recipes from Donna\'s Recipe Hive');
         }
 
         function showMultipleRecipeShare(recipesData, title) {
@@ -1159,10 +1169,10 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             const recipeText = recipesData.map(recipe => formatRecipeText(recipe)).join('\n\n' + '='.repeat(50) + '\n\n');
             
             document.getElementById('modalRecipeContent').innerHTML = `
-                <h2 style="color: var(--primary); margin-bottom: 1rem;">📤 Share Multiple Recipes: ${title}</h2>
+                <h2 style="color: var(--primary); margin-bottom: 1rem;">� Export Multiple Recipes: ${title}</h2>
                 
                 <div style="margin-bottom: 2rem;">
-                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Share Link (${recipesData.length} recipes):</h3>
+                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Export Link (${recipesData.length} recipes):</h3>
                     <div style="background: #f8f9fa; border: 2px solid var(--secondary); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
                         <input type="text" id="shareUrl" value="${shareUrl}" 
                                style="width: 100%; border: none; background: transparent; font-size: 0.9rem;" readonly>
@@ -1302,6 +1312,21 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             currentView = 'grid';
             document.getElementById('toggleGridBtn').style.background = '#ffd700';
             document.getElementById('toggleViewBtn').style.background = '#6c757d';
+            renderRecipes(document.getElementById('searchRecipes').value);
+        });
+
+        // Recipe collection toggle functionality
+        document.getElementById('myRecipesBtn').addEventListener('click', () => {
+            showingPublicRecipes = false;
+            document.getElementById('myRecipesBtn').style.background = 'var(--primary)';
+            document.getElementById('publicRecipesBtn').style.background = '#6c757d';
+            renderRecipes(document.getElementById('searchRecipes').value);
+        });
+
+        document.getElementById('publicRecipesBtn').addEventListener('click', () => {
+            showingPublicRecipes = true;
+            document.getElementById('publicRecipesBtn').style.background = 'var(--primary)';
+            document.getElementById('myRecipesBtn').style.background = '#6c757d';
             renderRecipes(document.getElementById('searchRecipes').value);
         });
 
