@@ -307,6 +307,42 @@
         .select-checkbox {
             margin-right: 0.5rem;
         }
+
+        /* Notification popup styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            color: var(--text);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-left: 4px solid var(--primary);
+            z-index: 2000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            max-width: 350px;
+            font-weight: 500;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left-color: #28a745;
+        }
+
+        .notification.error {
+            border-left-color: #dc3545;
+        }
+
+        .notification.info {
+            border-left-color: #17a2b8;
+        }
     </style>
 </head>
 <body>
@@ -389,6 +425,38 @@
         
         function saveRecipes() {
             localStorage.setItem('donnaRecipes', JSON.stringify(recipes));
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Remove any existing notifications
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+
+            // Add to page
+            document.body.appendChild(notification);
+
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 3000);
         }
 
         // Photo handling functions
@@ -491,7 +559,7 @@
                 renderRecipes();
                 closeRecipeModal();
                 clearURLParams();
-                alert(`${window.tempSharedRecipes.length} recipes saved to your collection! 🎉`);
+                showNotification(`${window.tempSharedRecipes.length} recipes saved to your collection! 🎉`, 'success');
                 delete window.tempSharedRecipes;
             }
         }
@@ -509,7 +577,7 @@
                 recipes.unshift(newRecipe);
                 saveRecipes();
                 renderRecipes();
-                alert(`Recipe "${recipe.name}" saved to your collection! 🎉`);
+                showNotification(`Recipe "${recipe.name}" saved to your collection! 🎉`, 'success');
             }
         }
 
@@ -559,9 +627,9 @@
                 renderRecipes();
                 closeRecipeModal();
                 clearURLParams();
-                alert('Recipe saved to your collection! 🎉');
+                showNotification('Recipe saved to your collection! 🎉', 'success');
             } catch (error) {
-                alert('Error saving recipe. Please try again.');
+                showNotification('Error saving recipe. Please try again.', 'error');
             }
         }
 
@@ -620,7 +688,7 @@
                 const photoHtml = recipe.photo ? `<img src="${recipe.photo}" alt="${recipe.name}" class="recipe-photo">` : '';
                 const checkboxHtml = selectMode ? `
                     <div style="margin-bottom: 0.5rem;">
-                        <input type="checkbox" class="select-checkbox" onchange="toggleRecipeSelection(${recipe.id})" ${selectedRecipes.has(recipe.id) ? 'checked' : ''}>
+                        <input type="checkbox" class="select-checkbox" onchange="toggleRecipeSelection(${recipe.id})" ${Array.from(selectedRecipes).some(selectedId => parseFloat(selectedId) === parseFloat(recipe.id)) ? 'checked' : ''}>
                         <label>Select this recipe</label>
                     </div>
                 ` : '';
@@ -640,7 +708,7 @@
                     <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
                         <button onclick="viewRecipe(${recipe.id}); event.stopPropagation();" style="background: #28a745;">View 👁️</button>
                         <button onclick="shareRecipe(${recipe.id}); event.stopPropagation();" style="background: #17a2b8;">Share �</button>
-                        <button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545;">Delete 🗑️</button>
+                        <button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545;" data-recipe-id="${recipe.id}">Delete 🗑️</button>
                     </div>
                 `;
                 
@@ -714,7 +782,7 @@
                                 <div style="display: flex; gap: 0.5rem;">
                                     <button onclick="shareRecipe(${recipe.id}); event.stopPropagation();" style="background: #17a2b8; padding: 0.4rem 0.8rem;">📤</button>
                                     <button onclick="editRecipe(${recipe.id}); event.stopPropagation();" style="background: #ffa500; padding: 0.4rem 0.8rem;">✏️</button>
-                                    <button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545; padding: 0.4rem 0.8rem;">🗑️</button>
+                                    <button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545; padding: 0.4rem 0.8rem;" data-recipe-id="${recipe.id}">🗑️</button>
                                 </div>
                             </div>
                         `;
@@ -735,16 +803,36 @@
         }
 
         function deleteRecipe(id) {
-            if (confirm('Are you sure you want to delete this recipe?')) {
-                const index = recipes.findIndex(r => r.id === id);
-                recipes.splice(index, 1);
-                saveRecipes();
-                renderRecipes();
+            // Convert ID to number for comparison
+            const numericId = parseFloat(id);
+            const recipe = recipes.find(r => parseFloat(r.id) === numericId);
+            
+            if (!recipe) {
+                showNotification('Recipe not found!', 'error');
+                return;
+            }
+            
+            const recipeName = recipe.name;
+            
+            // Create custom confirmation dialog with clear yes/no question
+            const confirmDelete = confirm(`Delete this recipe?\n\n"${recipeName}"\n\nClick OK to delete or Cancel to keep the recipe.`);
+            
+            if (confirmDelete) {
+                const index = recipes.findIndex(r => parseFloat(r.id) === numericId);
+                
+                if (index !== -1) {
+                    recipes.splice(index, 1);
+                    saveRecipes();
+                    renderRecipes();
+                    showNotification(`"${recipeName}" has been deleted!`, 'success');
+                } else {
+                    showNotification('Error: Recipe could not be deleted.', 'error');
+                }
             }
         }
 
         function viewRecipe(id) {
-            const recipe = recipes.find(r => r.id === id);
+            const recipe = recipes.find(r => r.id == id); // Use == instead of === for loose comparison
             if (!recipe) return;
 
             const recipeDate = new Date(recipe.date).toLocaleDateString();
@@ -779,7 +867,7 @@
         }
 
         function editRecipe(id) {
-            const recipe = recipes.find(r => r.id === id);
+            const recipe = recipes.find(r => r.id == id); // Use == instead of === for loose comparison
             if (!recipe) return;
 
             const recipeDate = new Date(recipe.date).toLocaleDateString();
@@ -823,7 +911,7 @@
         }
 
         async function saveEditedRecipe(id) {
-            const recipeIndex = recipes.findIndex(r => r.id === id);
+            const recipeIndex = recipes.findIndex(r => r.id == id); // Use == instead of === for loose comparison
             if (recipeIndex === -1) return;
 
             const updatedName = document.getElementById('editRecipeName').value.trim();
@@ -833,7 +921,7 @@
             const photoFile = document.getElementById('editRecipePhoto').files[0];
 
             if (!updatedName) {
-                alert('Please enter a recipe name!');
+                showNotification('Please enter a recipe name!', 'error');
                 return;
             }
 
@@ -856,11 +944,11 @@
             saveRecipes();
             renderRecipes();
             viewRecipe(id); // Show the updated recipe
-            alert('Recipe updated successfully! 🎉');
+            showNotification('Recipe updated successfully! 🎉', 'success');
         }
 
         function shareRecipe(id) {
-            const recipe = recipes.find(r => r.id === id);
+            const recipe = recipes.find(r => r.id == id); // Use == instead of === for loose comparison
             if (!recipe) return;
 
             // Create a clean version of the recipe for sharing (remove id and dates)
@@ -928,9 +1016,9 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             shareUrlInput.select();
             shareUrlInput.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(shareUrlInput.value).then(() => {
-                alert('Share link copied to clipboard! 📋');
+                showNotification('Share link copied to clipboard! 📋', 'success');
             }).catch(() => {
-                alert('Please manually copy the link above.');
+                showNotification('Please manually copy the link above.', 'info');
             });
         }
 
@@ -939,9 +1027,9 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             recipeTextArea.select();
             recipeTextArea.setSelectionRange(0, 99999);
             navigator.clipboard.writeText(recipeTextArea.value).then(() => {
-                alert('Recipe text copied to clipboard! 📝');
+                showNotification('Recipe text copied to clipboard! 📝', 'success');
             }).catch(() => {
-                alert('Please manually copy the recipe text above.');
+                showNotification('Please manually copy the recipe text above.', 'info');
             });
         }
 
@@ -968,16 +1056,21 @@ Shared from Donna's Recipe Hive 🐝🍯`;
 
         // Bulk selection functions
         function toggleRecipeSelection(id) {
-            if (selectedRecipes.has(id)) {
-                selectedRecipes.delete(id);
+            // Convert id to ensure consistent comparison
+            const numericId = parseFloat(id);
+            const hasId = Array.from(selectedRecipes).some(selectedId => parseFloat(selectedId) === numericId);
+            
+            if (hasId) {
+                // Remove all matching IDs
+                selectedRecipes = new Set(Array.from(selectedRecipes).filter(selectedId => parseFloat(selectedId) !== numericId));
             } else {
-                selectedRecipes.add(id);
+                selectedRecipes.add(numericId);
             }
             updateSelectedCount();
         }
 
         function selectAllRecipes() {
-            recipes.forEach(recipe => selectedRecipes.add(recipe.id));
+            recipes.forEach(recipe => selectedRecipes.add(parseFloat(recipe.id)));
             renderRecipes();
             updateSelectedCount();
         }
@@ -1024,12 +1117,12 @@ Shared from Donna's Recipe Hive 🐝🍯`;
 
         function shareSelectedRecipes() {
             if (selectedRecipes.size === 0) {
-                alert('Please select at least one recipe to share.');
+                showNotification('Please select at least one recipe to share.', 'info');
                 return;
             }
             
             const selectedRecipeData = Array.from(selectedRecipes).map(id => {
-                const recipe = recipes.find(r => r.id === id);
+                const recipe = recipes.find(r => parseFloat(r.id) === parseFloat(id));
                 return {
                     name: recipe.name,
                     category: recipe.category,
@@ -1044,7 +1137,7 @@ Shared from Donna's Recipe Hive 🐝🍯`;
 
         function shareAllRecipes() {
             if (recipes.length === 0) {
-                alert('No recipes to share.');
+                showNotification('No recipes to share.', 'info');
                 return;
             }
             
@@ -1099,6 +1192,14 @@ Shared from Donna's Recipe Hive 🐝🍯`;
         // Event Listeners
         document.getElementById('addRecipeBtn').addEventListener('click', () => {
             document.getElementById('recipeForm').classList.remove('hidden');
+            
+            // Clear all form fields including photo preview
+            document.getElementById('recipeName').value = '';
+            document.getElementById('recipeCategory').value = '';
+            document.getElementById('ingredients').value = '';
+            document.getElementById('instructions').value = '';
+            document.getElementById('recipePhoto').value = '';
+            document.getElementById('photoPreview').style.display = 'none';
         });
 
         document.getElementById('cancelRecipe').addEventListener('click', () => {
@@ -1109,6 +1210,8 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             document.getElementById('recipeCategory').value = '';
             document.getElementById('ingredients').value = '';
             document.getElementById('instructions').value = '';
+            document.getElementById('recipePhoto').value = '';
+            document.getElementById('photoPreview').style.display = 'none';
         });
 
         document.getElementById('saveRecipe').addEventListener('click', async (e) => {
@@ -1122,7 +1225,7 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             const photoFile = document.getElementById('recipePhoto').files[0];
             
             if (!recipeName) {
-                alert('Please enter a recipe name!');
+                showNotification('Please enter a recipe name!', 'error');
                 return;
             }
             
@@ -1143,6 +1246,8 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             document.getElementById('instructions').value = '';
             document.getElementById('recipePhoto').value = '';
             document.getElementById('photoPreview').style.display = 'none';
+            
+            showNotification(`"${recipeName}" saved successfully! 📝`, 'success');
         });
 
         document.getElementById('searchRecipes').addEventListener('input', (e) => {
@@ -1208,6 +1313,16 @@ Shared from Donna's Recipe Hive 🐝🍯`;
             const modal = document.getElementById('recipeModal');
             if (e.target === modal) {
                 closeRecipeModal();
+            }
+        });
+
+        // Add event delegation for delete buttons as backup
+        document.addEventListener('click', (e) => {
+            if (e.target.dataset.recipeId && e.target.textContent.includes('Delete')) {
+                e.stopPropagation();
+                const recipeId = e.target.dataset.recipeId;
+                console.log('Event delegation delete triggered for ID:', recipeId);
+                deleteRecipe(recipeId);
             }
         });
 
