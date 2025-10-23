@@ -194,12 +194,12 @@
 
         .modal-content {
             background-color: white;
-            margin: 5% auto;
+            margin: 2% auto;
             padding: 2rem;
             border-radius: 15px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
+            width: 95%;
+            max-width: 900px;
+            max-height: 95vh;
             overflow-y: auto;
             position: relative;
         }
@@ -221,6 +221,56 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
+        .category-view {
+            display: none;
+        }
+
+        .category-section {
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.1);
+        }
+
+        .category-header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .recipe-list-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .recipe-list-item:hover {
+            background: var(--secondary);
+        }
+
+        .recipe-list-name {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .recipe-list-date {
+            font-size: 0.9em;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -240,20 +290,28 @@
         
         <div style="text-align: center; margin: 1rem 0;">
             <p id="recipeCount" style="color: var(--primary); font-weight: bold; font-size: 1.1rem;"></p>
+            <div style="margin: 1rem 0;">
+                <button id="toggleViewBtn" style="background: var(--accent); color: var(--text); margin-right: 0.5rem;">📋 Category View</button>
+                <button id="toggleGridBtn" style="background: #6c757d;">🎛️ Grid View</button>
+            </div>
         </div>
 
-        <div id="recipeForm" class="recipe-form hidden">
+        <form id="recipeForm" class="recipe-form hidden">
             <h2>🍳 Add New Recipe</h2>
             <input type="text" id="recipeName" placeholder="Recipe Name" required>
             <input type="text" id="recipeCategory" placeholder="Category (e.g., Dessert, Main Course)">
             <textarea id="ingredients" placeholder="Ingredients (one per line)" rows="5"></textarea>
             <textarea id="instructions" placeholder="Instructions" rows="5"></textarea>
-            <button type="submit" id="saveRecipe">Save Recipe 📝</button>
+            <button type="button" id="saveRecipe">Save Recipe 📝</button>
             <button type="button" id="cancelRecipe">Cancel ❌</button>
-        </div>
+        </form>
 
         <div id="recipeList" class="honey-comb">
             <!-- Recipe cards will be dynamically added here -->
+        </div>
+
+        <div id="categoryView" class="category-view">
+            <!-- Categorized recipe list will be displayed here -->
         </div>
     </div>
 
@@ -266,7 +324,7 @@
             <div id="modalRecipeContent">
                 <!-- Recipe details will be loaded here -->
             </div>
-        </div>
+        </div>A
     </div>
 
     <script>
@@ -287,8 +345,21 @@
             renderRecipes();
         }
 
+        let currentView = 'grid'; // 'grid' or 'category'
+
         function renderRecipes(searchTerm = '') {
+            if (currentView === 'grid') {
+                renderGridView(searchTerm);
+            } else {
+                renderCategoryView(searchTerm);
+            }
+        }
+
+        function renderGridView(searchTerm = '') {
             const recipeList = document.getElementById('recipeList');
+            const categoryView = document.getElementById('categoryView');
+            recipeList.style.display = 'grid';
+            categoryView.style.display = 'none';
             recipeList.innerHTML = '';
 
             const filteredRecipes = recipes.filter(recipe => 
@@ -303,12 +374,14 @@
                         <p>Click the + button to add your first delicious recipe</p>
                     </div>
                 `;
+                updateRecipeCount(0);
                 return;
             }
 
             filteredRecipes.forEach(recipe => {
                 const card = document.createElement('div');
                 card.className = 'recipe-card';
+                card.style.cursor = 'pointer';
                 const recipeDate = new Date(recipe.date).toLocaleDateString();
                 card.innerHTML = `
                     <div class="recipe-header">
@@ -322,17 +395,95 @@
                         recipe.ingredients.split('\n').length > 3 ? '...' : ''
                     }</p>
                     <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                        <button onclick="viewRecipe(${recipe.id})" style="background: #28a745;">View Full Recipe 👁️</button>
-                        <button onclick="deleteRecipe(${recipe.id})" style="background: #dc3545;">Delete 🗑️</button>
+                        <button onclick="viewRecipe(${recipe.id}); event.stopPropagation();" style="background: #28a745;">View Full Recipe 👁️</button>
+                        <button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545;">Delete 🗑️</button>
                     </div>
                 `;
+                
+                // Make entire card clickable
+                card.addEventListener('click', () => viewRecipe(recipe.id));
                 recipeList.appendChild(card);
             });
 
-            // Add recipe count display
+            updateRecipeCount(filteredRecipes.length);
+        }
+
+        function renderCategoryView(searchTerm = '') {
+            const recipeList = document.getElementById('recipeList');
+            const categoryView = document.getElementById('categoryView');
+            recipeList.style.display = 'none';
+            categoryView.style.display = 'block';
+            categoryView.innerHTML = '';
+
+            const filteredRecipes = recipes.filter(recipe => 
+                recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                recipe.category.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+
+            if (filteredRecipes.length === 0) {
+                categoryView.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #8a2be2;">
+                        <h3>🐝 No recipes in your hive yet! 🍯</h3>
+                        <p>Click the + button to add your first delicious recipe</p>
+                    </div>
+                `;
+                updateRecipeCount(0);
+                return;
+            }
+
+            // Group recipes by category
+            const recipesByCategory = {};
+            filteredRecipes.forEach(recipe => {
+                const category = recipe.category || 'Uncategorized';
+                if (!recipesByCategory[category]) {
+                    recipesByCategory[category] = [];
+                }
+                recipesByCategory[category].push(recipe);
+            });
+
+            // Sort categories alphabetically
+            const sortedCategories = Object.keys(recipesByCategory).sort();
+
+            sortedCategories.forEach(category => {
+                const categorySection = document.createElement('div');
+                categorySection.className = 'category-section';
+                
+                // Sort recipes within category alphabetically
+                const sortedRecipes = recipesByCategory[category].sort((a, b) => 
+                    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+                );
+
+                categorySection.innerHTML = `
+                    <div class="category-header">
+                        ${category} (${sortedRecipes.length} recipe${sortedRecipes.length !== 1 ? 's' : ''})
+                    </div>
+                    ${sortedRecipes.map(recipe => {
+                        const recipeDate = new Date(recipe.date).toLocaleDateString();
+                        return `
+                            <div class="recipe-list-item" onclick="viewRecipe(${recipe.id})">
+                                <div>
+                                    <div class="recipe-list-name">${recipe.name}</div>
+                                    <div class="recipe-list-date">Added: ${recipeDate}</div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="editRecipe(${recipe.id}); event.stopPropagation();" style="background: #ffa500; padding: 0.4rem 0.8rem;">✏️</button>
+                                    <button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545; padding: 0.4rem 0.8rem;">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                `;
+                
+                categoryView.appendChild(categorySection);
+            });
+
+            updateRecipeCount(filteredRecipes.length);
+        }
+
+        function updateRecipeCount(count) {
             const countDisplay = document.getElementById('recipeCount');
             if (countDisplay) {
-                countDisplay.textContent = `${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''} found`;
+                countDisplay.textContent = `${count} recipe${count !== 1 ? 's' : ''} found`;
             }
         }
 
@@ -364,7 +515,8 @@
                 <h3 style="color: var(--primary);">📋 Instructions:</h3>
                 <ol style="margin-bottom: 1.5rem;">${instructionsList}</ol>
                 
-                <div style="text-align: center;">
+                <div style="text-align: center; display: flex; gap: 1rem; justify-content: center;">
+                    <button onclick="editRecipe(${recipe.id})" style="background: #ffa500;">Edit Recipe ✏️</button>
                     <button onclick="closeRecipeModal()" style="background: var(--primary);">Close 📖</button>
                 </div>
             `;
@@ -376,6 +528,72 @@
             document.getElementById('recipeModal').style.display = 'none';
         }
 
+        function editRecipe(id) {
+            const recipe = recipes.find(r => r.id === id);
+            if (!recipe) return;
+
+            const recipeDate = new Date(recipe.date).toLocaleDateString();
+
+            document.getElementById('modalRecipeContent').innerHTML = `
+                <h2 style="color: var(--primary); margin-bottom: 1rem;">✏️ Edit Recipe</h2>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 1.5rem;">Added: ${recipeDate}</p>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Recipe Name:</label>
+                    <input type="text" id="editRecipeName" value="${recipe.name}" style="width: 100%; padding: 0.8rem; border: 2px solid var(--secondary); border-radius: 8px;">
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Category:</label>
+                    <input type="text" id="editRecipeCategory" value="${recipe.category}" style="width: 100%; padding: 0.8rem; border: 2px solid var(--secondary); border-radius: 8px;">
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Ingredients (one per line):</label>
+                    <textarea id="editIngredients" rows="8" style="width: 100%; padding: 0.8rem; border: 2px solid var(--secondary); border-radius: 8px;">${recipe.ingredients}</textarea>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Instructions:</label>
+                    <textarea id="editInstructions" rows="8" style="width: 100%; padding: 0.8rem; border: 2px solid var(--secondary); border-radius: 8px;">${recipe.instructions}</textarea>
+                </div>
+                
+                <div style="text-align: center; display: flex; gap: 1rem; justify-content: center;">
+                    <button onclick="saveEditedRecipe(${recipe.id})" style="background: #28a745;">Save Changes 💾</button>
+                    <button onclick="viewRecipe(${recipe.id})" style="background: #6c757d;">Cancel ❌</button>
+                </div>
+            `;
+        }
+
+        function saveEditedRecipe(id) {
+            const recipeIndex = recipes.findIndex(r => r.id === id);
+            if (recipeIndex === -1) return;
+
+            const updatedName = document.getElementById('editRecipeName').value.trim();
+            const updatedCategory = document.getElementById('editRecipeCategory').value.trim();
+            const updatedIngredients = document.getElementById('editIngredients').value.trim();
+            const updatedInstructions = document.getElementById('editInstructions').value.trim();
+
+            if (!updatedName) {
+                alert('Please enter a recipe name!');
+                return;
+            }
+
+            recipes[recipeIndex] = {
+                ...recipes[recipeIndex],
+                name: updatedName,
+                category: updatedCategory || 'Uncategorized',
+                ingredients: updatedIngredients || 'No ingredients listed',
+                instructions: updatedInstructions || 'No instructions provided',
+                lastModified: new Date().toISOString()
+            };
+
+            saveRecipes();
+            renderRecipes();
+            viewRecipe(id); // Show the updated recipe
+            alert('Recipe updated successfully! 🎉');
+        }
+
         // Event Listeners
         document.getElementById('addRecipeBtn').addEventListener('click', () => {
             document.getElementById('recipeForm').classList.remove('hidden');
@@ -383,24 +601,62 @@
 
         document.getElementById('cancelRecipe').addEventListener('click', () => {
             document.getElementById('recipeForm').classList.add('hidden');
-            document.getElementById('recipeForm').reset();
+            
+            // Clear form fields
+            document.getElementById('recipeName').value = '';
+            document.getElementById('recipeCategory').value = '';
+            document.getElementById('ingredients').value = '';
+            document.getElementById('instructions').value = '';
         });
 
-        document.getElementById('recipeForm').addEventListener('submit', (e) => {
+        document.getElementById('saveRecipe').addEventListener('click', (e) => {
             e.preventDefault();
+            
+            // Validate required fields
+            const recipeName = document.getElementById('recipeName').value.trim();
+            const recipeCategory = document.getElementById('recipeCategory').value.trim();
+            const ingredients = document.getElementById('ingredients').value.trim();
+            const instructions = document.getElementById('instructions').value.trim();
+            
+            if (!recipeName) {
+                alert('Please enter a recipe name!');
+                return;
+            }
+            
             const newRecipe = {
-                name: document.getElementById('recipeName').value,
-                category: document.getElementById('recipeCategory').value,
-                ingredients: document.getElementById('ingredients').value,
-                instructions: document.getElementById('instructions').value
+                name: recipeName,
+                category: recipeCategory || 'Uncategorized',
+                ingredients: ingredients || 'No ingredients listed',
+                instructions: instructions || 'No instructions provided'
             };
+            
             addRecipe(newRecipe);
             document.getElementById('recipeForm').classList.add('hidden');
-            document.getElementById('recipeForm').reset();
+            
+            // Clear form fields
+            document.getElementById('recipeName').value = '';
+            document.getElementById('recipeCategory').value = '';
+            document.getElementById('ingredients').value = '';
+            document.getElementById('instructions').value = '';
         });
 
         document.getElementById('searchRecipes').addEventListener('input', (e) => {
             renderRecipes(e.target.value);
+        });
+
+        // View toggle functionality
+        document.getElementById('toggleViewBtn').addEventListener('click', () => {
+            currentView = 'category';
+            document.getElementById('toggleViewBtn').style.background = '#ffd700';
+            document.getElementById('toggleGridBtn').style.background = '#6c757d';
+            renderRecipes(document.getElementById('searchRecipes').value);
+        });
+
+        document.getElementById('toggleGridBtn').addEventListener('click', () => {
+            currentView = 'grid';
+            document.getElementById('toggleGridBtn').style.background = '#ffd700';
+            document.getElementById('toggleViewBtn').style.background = '#6c757d';
+            renderRecipes(document.getElementById('searchRecipes').value);
         });
 
         // Close modal when clicking outside
