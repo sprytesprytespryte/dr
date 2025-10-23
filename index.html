@@ -179,6 +179,48 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-20px); }
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: var(--primary);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -194,6 +236,10 @@
     <div class="container">
         <div class="search-bar">
             <input type="search" id="searchRecipes" placeholder="Search your recipes...">
+        </div>
+        
+        <div style="text-align: center; margin: 1rem 0;">
+            <p id="recipeCount" style="color: var(--primary); font-weight: bold; font-size: 1.1rem;"></p>
         </div>
 
         <div id="recipeForm" class="recipe-form hidden">
@@ -212,6 +258,16 @@
     </div>
 
     <button class="add-recipe" id="addRecipeBtn" title="Add New Recipe">➕</button>
+
+    <!-- Recipe View Modal -->
+    <div id="recipeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRecipeModal()">&times;</span>
+            <div id="modalRecipeContent">
+                <!-- Recipe details will be loaded here -->
+            </div>
+        </div>
+    </div>
 
     <script>
         // Recipe management code will go here
@@ -240,23 +296,44 @@
                 recipe.category.toLowerCase().includes(searchTerm.toLowerCase())
             );
 
+            if (filteredRecipes.length === 0) {
+                recipeList.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #8a2be2;">
+                        <h3>🐝 No recipes in your hive yet! 🍯</h3>
+                        <p>Click the + button to add your first delicious recipe</p>
+                    </div>
+                `;
+                return;
+            }
+
             filteredRecipes.forEach(recipe => {
                 const card = document.createElement('div');
                 card.className = 'recipe-card';
+                const recipeDate = new Date(recipe.date).toLocaleDateString();
                 card.innerHTML = `
                     <div class="recipe-header">
                         <h3 class="recipe-title">${recipe.name}</h3>
                         <span>🍽️</span>
                     </div>
                     <div class="tag">${recipe.category}</div>
+                    <p style="font-size: 0.9em; color: #666; margin: 0.5rem 0;">Added: ${recipeDate}</p>
                     <p><strong>Ingredients:</strong></p>
                     <p>${recipe.ingredients.split('\n').slice(0,3).join(', ')}${
                         recipe.ingredients.split('\n').length > 3 ? '...' : ''
                     }</p>
-                    <button onclick="deleteRecipe(${recipe.id})">Delete 🗑️</button>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <button onclick="viewRecipe(${recipe.id})" style="background: #28a745;">View Full Recipe 👁️</button>
+                        <button onclick="deleteRecipe(${recipe.id})" style="background: #dc3545;">Delete 🗑️</button>
+                    </div>
                 `;
                 recipeList.appendChild(card);
             });
+
+            // Add recipe count display
+            const countDisplay = document.getElementById('recipeCount');
+            if (countDisplay) {
+                countDisplay.textContent = `${filteredRecipes.length} recipe${filteredRecipes.length !== 1 ? 's' : ''} found`;
+            }
         }
 
         function deleteRecipe(id) {
@@ -266,6 +343,37 @@
                 saveRecipes();
                 renderRecipes();
             }
+        }
+
+        function viewRecipe(id) {
+            const recipe = recipes.find(r => r.id === id);
+            if (!recipe) return;
+
+            const recipeDate = new Date(recipe.date).toLocaleDateString();
+            const ingredientsList = recipe.ingredients.split('\n').filter(i => i.trim()).map(i => `<li>${i.trim()}</li>`).join('');
+            const instructionsList = recipe.instructions.split('\n').filter(i => i.trim()).map((instruction, index) => `<li><strong>Step ${index + 1}:</strong> ${instruction.trim()}</li>`).join('');
+
+            document.getElementById('modalRecipeContent').innerHTML = `
+                <h2 style="color: var(--primary); margin-bottom: 0.5rem;">🍽️ ${recipe.name}</h2>
+                <div class="tag" style="margin-bottom: 1rem;">${recipe.category}</div>
+                <p style="font-size: 0.9em; color: #666; margin-bottom: 1.5rem;">Added: ${recipeDate}</p>
+                
+                <h3 style="color: var(--primary);">🥘 Ingredients:</h3>
+                <ul style="margin-bottom: 1.5rem;">${ingredientsList}</ul>
+                
+                <h3 style="color: var(--primary);">📋 Instructions:</h3>
+                <ol style="margin-bottom: 1.5rem;">${instructionsList}</ol>
+                
+                <div style="text-align: center;">
+                    <button onclick="closeRecipeModal()" style="background: var(--primary);">Close 📖</button>
+                </div>
+            `;
+            
+            document.getElementById('recipeModal').style.display = 'block';
+        }
+
+        function closeRecipeModal() {
+            document.getElementById('recipeModal').style.display = 'none';
         }
 
         // Event Listeners
@@ -293,6 +401,14 @@
 
         document.getElementById('searchRecipes').addEventListener('input', (e) => {
             renderRecipes(e.target.value);
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('recipeModal');
+            if (e.target === modal) {
+                closeRecipeModal();
+            }
         });
 
         // Initial render
