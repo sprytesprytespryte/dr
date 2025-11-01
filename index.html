@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#8a2be2">
-    <title>🐝 Donna's Buzzing Recipe Book 🐝</title>
-
+    <title>Donna's Recipe Collection</title>
     <style>
         :root {
-            --primary: #8a2be2;
+            --primary: #7c3aed;
             --secondary: #e6d5ff;
-            --accent: #ffd700;
-            --bg: #fcfaff;
+            --bg: #fcf7ff;
             --text: #2c1810;
+            --muted: #6b7280;
         }
 
         body {
@@ -23,128 +21,49 @@
             line-height: 1.6;
         }
 
+        .marquee {
+            background: linear-gradient(135deg, var(--primary), #9f7aea);
+            color: white;
+            white-space: nowrap;
+            overflow: hidden;
+            padding: 0.8rem;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 30s linear infinite;
+            font-size: 1.1rem;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
         header {
-            background: linear-gradient(135deg, var(--primary), #b19cd9);
+            background: linear-gradient(135deg, var(--primary), #9f7aea);
             color: white;
             padding: 1rem;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .bee-title {
-            font-size: 2rem;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 0.5rem 1rem;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 1rem;
-        }
-
-        .honey-comb {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-            padding: 1rem;
-        }
-
-        .recipe-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.1);
-            transition: transform 0.2s;
-            border: 2px solid var(--secondary);
-        }
-
-        .recipe-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .recipe-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .recipe-title {
-            margin: 0;
-            color: var(--primary);
-            font-size: 1.25rem;
-        }
-
-        .add-recipe {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s;
-        }
-
-        .add-recipe:hover {
-            transform: scale(1.1);
-        }
-
-        .recipe-form {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            margin-bottom: 2rem;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-            border: 2px solid var(--secondary);
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background: #7823c9;
-        }
-
-        .tag {
-            background: var(--secondary);
-            color: var(--primary);
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            display: inline-block;
-            margin-right: 0.5rem;
-        }
-
-        .hidden {
-            display: none;
         }
 
         .search-bar {
@@ -156,7 +75,10 @@
 
         .search-bar input {
             width: 100%;
-            padding-left: 2.5rem;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1px solid var(--secondary);
+            border-radius: 12px;
+            font-size: 1rem;
         }
 
         .search-bar::before {
@@ -167,12 +89,70 @@
             transform: translateY(-50%);
         }
 
-        .bee-decoration {
+        .category-section {
+            margin: 2rem 0;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .category-title {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recipe-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .recipe-item {
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .recipe-item:hover {
+            background: var(--secondary);
+        }
+
+        .recipe-details {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .recipe-details h2 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .ingredients-list, .instructions-list {
+            padding-left: 1.2rem;
+        }
+
+        .bee {
             position: fixed;
             font-size: 1.5rem;
+            opacity: 0.2;
             animation: float 3s ease-in-out infinite;
-            z-index: -1;
-            opacity: 0.5;
+            pointer-events: none;
+            z-index: 1;
         }
 
         @keyframes float {
@@ -180,1186 +160,174 @@
             50% { transform: translateY(-20px); }
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 2% auto;
-            padding: 2rem;
-            border-radius: 15px;
-            width: 95%;
-            max-width: 900px;
-            max-height: 95vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .close {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 2rem;
-            cursor: pointer;
-            color: #aaa;
-        }
-
-        .close:hover {
-            color: var(--primary);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .category-view {
-            display: none;
-        }
-
-        .category-section {
-            margin-bottom: 2rem;
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.1);
-        }
-
-        .category-header {
-            background: var(--primary);
-            color: white;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .recipe-list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.8rem;
-            margin-bottom: 0.5rem;
-            background: var(--bg);
-            border-radius: 8px;
-            border-left: 4px solid var(--primary);
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .recipe-list-item:hover {
+        .serving-info {
             background: var(--secondary);
-        }
-
-        .recipe-list-name {
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .recipe-list-date {
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .recipe-photo {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-        }
-
-        .photo-upload {
-            margin-bottom: 1rem;
-        }
-
-        .photo-preview {
-            max-width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            display: none;
-        }
-
-        .bulk-actions {
-            background: white;
             padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: none;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .select-checkbox {
-            margin-right: 0.5rem;
-        }
-
-        /* Notification popup styles */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            color: var(--text);
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border-left: 4px solid var(--primary);
-            z-index: 2000;
-            opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.3s ease;
-            max-width: 350px;
-            font-weight: 500;
-        }
-
-        .notification.show {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        .notification.success {
-            border-left-color: #28a745;
-        }
-
-        .notification.error {
-            border-left-color: #dc3545;
-        }
-
-        .notification.info {
-            border-left-color: #17a2b8;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <div class="bee-decoration" style="top: 20%; left: 10%">🐝</div>
-    <div class="bee-decoration" style="top: 40%; right: 15%">🐝</div>
-    <div class="bee-decoration" style="bottom: 30%; left: 20%">🐝</div>
+    <div class="marquee">
+        <div class="marquee-content">
+            🐝 Donna's Retirement Recipe Collection 🐝 A Lifetime of Delicious Recipes 🍯
+        </div>
+    </div>
 
     <header>
-        <h1 class="bee-title">🐝 Donna's Recipe Hive 🍯</h1>
-        <p>Your sweet collection of delicious recipes</p>
+        <button id="backBtn" class="back-btn">← Back</button>
+        <h1>Donna's Recipe Collection</h1>
+        <div style="width:80px"></div>
     </header>
 
     <div class="container">
         <div class="search-bar">
-            <input type="search" id="searchRecipes" placeholder="Search your recipes...">
-        </div>
-        
-        <div style="text-align: center; margin: 1rem 0;">
-            <p id="recipeCount" style="color: var(--primary); font-weight: bold; font-size: 1.1rem;"></p>
-            <div style="margin: 1rem 0;">
-                <button id="myRecipesBtn" style="background: var(--primary); color: white; margin-right: 0.5rem;">📝 My Recipes</button>
-                <button id="publicRecipesBtn" style="background: #6c757d; margin-right: 0.5rem;">🌍 Community Recipes</button>
-                <button id="toggleViewBtn" style="background: var(--accent); color: var(--text); margin-right: 0.5rem;">📋 Category View</button>
-                <button id="toggleGridBtn" style="background: #6c757d;">🎛️ Grid View</button>
-                <button id="toggleSelectBtn" style="background: #17a2b8; margin-left: 0.5rem;">☑️ Select Mode</button>
-            </div>
+            <input type="search" id="searchRecipes" placeholder="Search recipes...">
         </div>
 
-        <!-- Bulk Actions Toolbar -->
-        <div id="bulkActions" class="bulk-actions">
-            <span>Selected: <span id="selectedCount">0</span> recipe(s)</span>
-            <button onclick="selectAllRecipes()" style="background: #28a745;">Select All</button>
-            <button onclick="deselectAllRecipes()" style="background: #6c757d;">Deselect All</button>
-            <button onclick="exportAllRecipes()" style="background: #ffa500;">Export All Recipes 📁</button>
-            <button onclick="exitSelectMode()" style="background: #dc3545;">Exit Select Mode</button>
-        </div>
-
-        <form id="recipeForm" class="recipe-form hidden">
-            <h2>🍳 Add New Recipe</h2>
-            <input type="text" id="recipeName" placeholder="Recipe Name" required>
-            <input type="text" id="recipeCategory" placeholder="Category (e.g., Dessert, Main Course)">
-            
-            <div class="photo-upload">
-                <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Recipe Photo (optional):</label>
-                <input type="file" id="recipePhoto" accept="image/*" style="margin-bottom: 0.5rem;">
-                <img id="photoPreview" class="photo-preview" alt="Recipe preview">
-            </div>
-            
-            <textarea id="ingredients" placeholder="Ingredients (one per line)" rows="5"></textarea>
-            <textarea id="instructions" placeholder="Instructions" rows="5"></textarea>
-            <button type="button" id="saveRecipe">Save Recipe 📝</button>
-            <button type="button" id="cancelRecipe">Cancel ❌</button>
-        </form>
-
-        <div id="recipeList" class="honey-comb">
-            <!-- Recipe cards will be dynamically added here -->
-        </div>
-
-        <div id="categoryView" class="category-view">
-            <!-- Categorized recipe list will be displayed here -->
-        </div>
+        <div id="categoryView"></div>
+        <div id="recipeDetails" style="display:none"></div>
     </div>
 
-    <button class="add-recipe" id="addRecipeBtn" title="Add New Recipe">➕</button>
-
-    <!-- Recipe View Modal -->
-    <div id="recipeModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeRecipeModal()">&times;</span>
-            <div id="modalRecipeContent">
-                <!-- Recipe details will be loaded here -->
-            </div>
-        </div>A
-    </div>
+    <div class="bee" style="top: 20%; left: 10%">🐝</div>
+    <div class="bee" style="top: 40%; right: 15%">🐝</div>
+    <div class="bee" style="bottom: 30%; left: 20%">🐝</div>
 
     <script>
-        // Recipe management code will go here
-        const recipes = JSON.parse(localStorage.getItem('donnaRecipes') || '[]');
-        const publicRecipes = JSON.parse(localStorage.getItem('donnaPublicRecipes') || '[]');
-        let selectedRecipes = new Set();
-        let selectMode = false;
-        let currentView = 'grid'; // 'grid' or 'category'
-        let showingPublicRecipes = false;
-        
-        function saveRecipes() {
-            localStorage.setItem('donnaRecipes', JSON.stringify(recipes));
-        }
+        const categoryEmojis = {
+            'Cakes': '🎂',
+            'Cookies': '🍪',
+            'Buns': '🥐',
+            'Christmas': '🎄',
+            'Puddings': '🍮',
+            'Jams': '🍯',
+            'Pickles': '🥒',
+            'Savory': '🍲'
+        };
 
-        function savePublicRecipes() {
-            localStorage.setItem('donnaPublicRecipes', JSON.stringify(publicRecipes));
-        }
-
-        function addToPublicRecipes(recipe) {
-            // Add recipe to public repository with anonymous user info
-            const publicRecipe = {
-                ...recipe,
-                publicId: Date.now() + Math.random(),
-                addedBy: 'Anonymous User',
-                dateAddedToPublic: new Date().toISOString(),
-                isPublic: true
-            };
-            publicRecipes.unshift(publicRecipe);
-            savePublicRecipes();
-        }
-
-        // Notification system
-        function showNotification(message, type = 'info') {
-            // Remove any existing notifications
-            const existingNotification = document.querySelector('.notification');
-            if (existingNotification) {
-                existingNotification.remove();
+        const recipes = [
+            {
+                id: 'cake1',
+                name: 'Chocolate Brownies',
+                category: 'Cakes',
+                servingInfo: 'Makes: 15\nPrep Time: 30 mins\nCook Time: 25-30 mins\nCost: 30p per serve',
+                ingredients: '225g Chocolate\n140g Butter\n3 Large eggs\n225g Caster Sugar\n100g Plain Flour\n1tsp Baking Powder\n1tsp Cocoa Powder',
+                instructions: '1. Preheat the oven to gas 4, 180°C, fan 160°C. Line a rectangular tin (27 x 17.5 x 3.5cm) with baking parchment\n2. Chop 175g chocolate and place in a small, heavy-based pan with butter. Melt over low heat, stirring occasionally\n3. Remove from heat and leave to cool\n4. Chop 50g chocolate into small chunks and set aside\n5. Whisk eggs and sugar with hand mixer in large bowl until thick, fluffy and doubled in volume\n6. Gently fold in cooled chocolate mixture\n7. Sift flour, baking powder and cocoa and fold in\n8. Carefully stir in chopped chocolate without over-mixing\n9. Pour into lined tin and spread to corners\n10. Bake 25-30 mins until middle is set and top slightly crusty\n11. Remove and leave until entirely cold before lifting from tin\n12. For icing: Finely chop chocolate, heat with cream and sugar until melted\n13. Pour in 1-1½ tablespoons boiling water to thin\n14. Drizzle over brownies\n15. When set, cut into 15 squares\n\nServe with Madagascan Vanilla Ice Cream'
+            },
+            {
+                id: 'cake2',
+                name: 'Banana Bread',
+                category: 'Cakes',
+                ingredients: '200g self raising flour\n16g cornflour\n1 tsp baking soda\n3/4 tsp baking powder\n3/4 tsp cinnamon\n3 bananas\n56g spread\n52g oil\n1 tsp vanilla\n1 egg',
+                instructions: '1. Melt the spread and mix all the wet ingredients together\n2. Mix all dry ingredients together\n3. Add the ingredients together until combined\n4. Grease or line a loaf tin\n5. Pour mixture into loaf tin and bake at 160°C for approximately 45 minutes'
+            },
+            {
+                id: 'savory1',
+                name: 'Katsu Curry Sauce',
+                category: 'Savory',
+                ingredients: '2-3 tbsp vegetable oil\n1 onion, finely chopped\n1 garlic clove, crushed\n2.5cm piece of ginger, peeled + grated\n1 tsp turmeric\n2 heaped tbsp mild curry powder\n1 tbsp plain flour\n300ml chicken or veg stock\n100ml coconut milk\n1 tsp light soy sauce\n1 tsp sugar, to taste',
+                instructions: '1. Heat oil in pan\n2. Add chopped onion and cook until softened\n3. Add crushed garlic and grated ginger\n4. Add turmeric and curry powder\n5. Add flour and cook for 1 minute\n6. Gradually add stock while stirring\n7. Add coconut milk\n8. Add soy sauce and sugar\n9. Simmer until thickened'
+            },
+            {
+                id: 'savory2',
+                name: 'Pizza Dough',
+                category: 'Savory',
+                ingredients: '400g plain flour, plus extra to dust\n1 x 7g sachet fast action dried yeast\n1 tsp fine sea salt\n1 tsp caster sugar\n2 tbsp olive oil, plus extra to drizzle\n1 tbsp cornmeal, polenta or semolina, to roll out',
+                instructions: '1. Preheat oven to hottest setting (240°C, fan 220°C, gas 9)\n2. Put pizza stones or baking trays in to heat\n3. Mix flour, yeast, salt and sugar in bowl\n4. Make well in centre, add oil and 225ml water\n5. Form dough and knead for 1 minute until smooth\n6. Rest under bowl while preparing toppings\n7. Roll to 25cm diameter on floured surface\n8. Place on cornmeal-dusted baking paper\n9. Stretch to 30cm, create thicker crust at edges\n10. Add toppings and drizzle with oil\n11. Rest 10-15 minutes\n12. Bake 10-15 minutes until golden'
             }
+        ];
 
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
+        let lastViewedId = localStorage.getItem('lastViewedRecipe');
 
-            // Add to page
-            document.body.appendChild(notification);
-
-            // Show notification
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 100);
-
-            // Auto-hide after 3 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
-                    }
-                }, 300);
-            }, 3000);
-        }
-
-        // Photo handling functions
-        function handlePhotoUpload(file) {
-            return new Promise((resolve) => {
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        resolve(e.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    resolve(null);
-                }
-            });
-        }
-
-        // Check for shared recipe in URL when page loads
-        function checkForSharedRecipe() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const sharedRecipe = urlParams.get('recipe');
-            const sharedRecipes = urlParams.get('recipes');
+        function showRecipeDetails(recipe) {
+            const categoryView = document.getElementById('categoryView');
+            const detailsView = document.getElementById('recipeDetails');
+            const backBtn = document.getElementById('backBtn');
             
-            if (sharedRecipe) {
-                try {
-                    const decodedRecipe = JSON.parse(atob(sharedRecipe));
-                    showSharedRecipe(decodedRecipe);
-                } catch (error) {
-                    console.error('Invalid shared recipe data');
-                }
-            } else if (sharedRecipes) {
-                try {
-                    const decodedRecipes = JSON.parse(atob(sharedRecipes));
-                    showSharedRecipeCollection(decodedRecipes);
-                } catch (error) {
-                    console.error('Invalid shared recipes data');
-                }
-            }
-        }
-
-        function showSharedRecipeCollection(sharedRecipes) {
-            const recipeCards = sharedRecipes.map((recipe, index) => {
-                const ingredientsList = recipe.ingredients.split('\n').filter(i => i.trim()).map(i => `<li>${i.trim()}</li>`).join('');
-                const instructionsList = recipe.instructions.split('\n').filter(i => i.trim()).map((instruction, idx) => `<li><strong>Step ${idx + 1}:</strong> ${instruction.trim()}</li>`).join('');
-                const photoHtml = recipe.photo ? `<img src="${recipe.photo}" alt="${recipe.name}" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">` : '';
-                
-                return `
-                    <div style="border: 2px solid var(--secondary); border-radius: 15px; padding: 1.5rem; margin-bottom: 2rem; background: white;">
-                        <h3 style="color: var(--primary); margin-bottom: 0.5rem;">${recipe.name}</h3>
-                        <div class="tag" style="margin-bottom: 1rem;">${recipe.category}</div>
-                        ${photoHtml}
-                        
-                        <h4 style="color: var(--primary);">🥘 Ingredients:</h4>
-                        <ul style="margin-bottom: 1rem;">${ingredientsList}</ul>
-                        
-                        <h4 style="color: var(--primary);">📋 Instructions:</h4>
-                        <ol style="margin-bottom: 1rem;">${instructionsList}</ol>
-                        
-                        <div style="text-align: center;">
-                            <button onclick="saveIndividualSharedRecipe(${index})" style="background: #28a745;">Save This Recipe 💾</button>
+            detailsView.innerHTML = `
+                <div class="recipe-details">
+                    <h2>${categoryEmojis[recipe.category]} ${recipe.name}</h2>
+                    ${recipe.servingInfo ? `
+                        <div class="serving-info">
+                            ${recipe.servingInfo.split('\n').join('<br>')}
                         </div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('modalRecipeContent').innerHTML = `
-                <h2 style="color: var(--primary); margin-bottom: 1rem;">📤 Shared Recipe Collection (${sharedRecipes.length} recipes)</h2>
-                <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem; background: #e8f5e8; padding: 0.5rem; border-radius: 5px;">
-                    📤 These recipes were shared with you!
-                </p>
-                
-                <div style="margin-bottom: 2rem;">
-                    <button onclick="saveAllSharedRecipes()" style="background: #28a745; margin-right: 0.5rem;">Save All Recipes 💾</button>
-                    <button onclick="closeRecipeModal(); clearURLParams();" style="background: var(--primary);">Close 📖</button>
-                </div>
-                
-                <div style="max-height: 70vh; overflow-y: auto;">
-                    ${recipeCards}
+                    ` : ''}
+                    <h3>Ingredients:</h3>
+                    <ul class="ingredients-list">
+                        ${recipe.ingredients.split('\n').map(i => `<li>${i}</li>`).join('')}
+                    </ul>
+                    <h3>Instructions:</h3>
+                    <ol class="instructions-list">
+                        ${recipe.instructions.split('\n').map(i => `<li>${i.replace(/^\d+\.\s*/, '')}</li>`).join('')}
+                    </ol>
                 </div>
             `;
             
-            // Store recipes in a temporary variable for saving
-            window.tempSharedRecipes = sharedRecipes;
-            document.getElementById('recipeModal').style.display = 'block';
-        }
-
-        function saveAllSharedRecipes() {
-            if (window.tempSharedRecipes) {
-                window.tempSharedRecipes.forEach(recipe => {
-                    const newRecipe = {
-                        ...recipe,
-                        id: Date.now() + Math.random(),
-                        date: new Date().toISOString(),
-                        sharedFrom: true
-                    };
-                    recipes.unshift(newRecipe);
-                });
-                
-                saveRecipes();
-                renderRecipes();
-                closeRecipeModal();
-                clearURLParams();
-                showNotification(`${window.tempSharedRecipes.length} recipes saved to your collection! 🎉`, 'success');
-                delete window.tempSharedRecipes;
-            }
-        }
-
-        function saveIndividualSharedRecipe(index) {
-            if (window.tempSharedRecipes && window.tempSharedRecipes[index]) {
-                const recipe = window.tempSharedRecipes[index];
-                const newRecipe = {
-                    ...recipe,
-                    id: Date.now(),
-                    date: new Date().toISOString(),
-                    sharedFrom: true
-                };
-                
-                recipes.unshift(newRecipe);
-                saveRecipes();
-                renderRecipes();
-                showNotification(`Recipe "${recipe.name}" saved to your collection! 🎉`, 'success');
-            }
-        }
-
-        function showSharedRecipe(sharedRecipe) {
-            const ingredientsList = sharedRecipe.ingredients.split('\n').filter(i => i.trim()).map(i => `<li>${i.trim()}</li>`).join('');
-            const instructionsList = sharedRecipe.instructions.split('\n').filter(i => i.trim()).map((instruction, index) => `<li><strong>Step ${index + 1}:</strong> ${instruction.trim()}</li>`).join('');
-
-            document.getElementById('modalRecipeContent').innerHTML = `
-                <h2 style="color: var(--primary); margin-bottom: 0.5rem;">${sharedRecipe.name}</h2>
-                <div class="tag" style="margin-bottom: 1rem;">${sharedRecipe.category}</div>
-                <p style="font-size: 0.9em; color: #666; margin-bottom: 1rem; background: #e8f5e8; padding: 0.5rem; border-radius: 5px;">
-                    📤 This recipe was shared with you!
-                </p>
-                
-                <h3 style="color: var(--primary);">🥘 Ingredients:</h3>
-                <ul style="margin-bottom: 1.5rem;">${ingredientsList}</ul>
-                
-                <h3 style="color: var(--primary);">📋 Instructions:</h3>
-                <ol style="margin-bottom: 1.5rem;">${instructionsList}</ol>
-                
-                <div style="text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    <button onclick="saveSharedRecipe('${btoa(JSON.stringify(sharedRecipe))}')" style="background: #28a745;">Save to My Recipes 💾</button>
-                    <button onclick="closeRecipeModal(); clearURLParams();" style="background: var(--primary);">Close 📖</button>
-                </div>
-            `;
-            
-            document.getElementById('recipeModal').style.display = 'block';
-        }
-
-        function clearURLParams() {
-            const url = window.location.pathname;
-            window.history.replaceState({}, document.title, url);
-        }
-
-        function saveSharedRecipe(encodedRecipe) {
-            try {
-                const sharedRecipe = JSON.parse(atob(encodedRecipe));
-                const newRecipe = {
-                    ...sharedRecipe,
-                    id: Date.now(),
-                    date: new Date().toISOString(),
-                    sharedFrom: true
-                };
-                
-                recipes.unshift(newRecipe);
-                saveRecipes();
-                renderRecipes();
-                closeRecipeModal();
-                clearURLParams();
-                showNotification('Recipe saved to your collection! 🎉', 'success');
-            } catch (error) {
-                showNotification('Error saving recipe. Please try again.', 'error');
-            }
-        }
-
-        async function addRecipe(recipe, photoFile = null) {
-            const photoData = await handlePhotoUpload(photoFile);
-            
-            const newRecipe = {
-                id: Date.now(),
-                ...recipe,
-                photo: photoData,
-                date: new Date().toISOString()
-            };
-            
-            recipes.unshift(newRecipe);
-            saveRecipes();
-            
-            // Automatically add to public recipes
-            addToPublicRecipes(newRecipe);
-            
-            renderRecipes();
-        }
-
-        function renderRecipes(searchTerm = '') {
-            if (currentView === 'grid') {
-                renderGridView(searchTerm);
-            } else {
-                renderCategoryView(searchTerm);
-            }
-        }
-
-        function getCurrentRecipes() {
-            return showingPublicRecipes ? publicRecipes : recipes;
-        }
-
-        function renderGridView(searchTerm = '') {
-            const recipeList = document.getElementById('recipeList');
-            const categoryView = document.getElementById('categoryView');
-            recipeList.style.display = 'grid';
             categoryView.style.display = 'none';
-            recipeList.innerHTML = '';
-
-            const currentRecipes = getCurrentRecipes();
-            const filteredRecipes = currentRecipes.filter(recipe => 
-                recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                recipe.category.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-
-            if (filteredRecipes.length === 0) {
-                const emptyMessage = showingPublicRecipes ? 
-                    'No community recipes yet! Add your recipes to share with everyone 🌍' :
-                    'No recipes in your hive yet! 🍯';
-                recipeList.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #8a2be2;">
-                        <h3>🐝 ${emptyMessage}</h3>
-                        <p>Click the + button to add your first delicious recipe</p>
-                    </div>
-                `;
-                updateRecipeCount(0);
-                return;
-            }
-
-            filteredRecipes.forEach(recipe => {
-                const card = document.createElement('div');
-                card.className = 'recipe-card';
-                card.style.cursor = selectMode ? 'default' : 'pointer';
-                const recipeDate = new Date(recipe.date).toLocaleDateString();
-                
-                const photoHtml = recipe.photo ? `<img src="${recipe.photo}" alt="${recipe.name}" class="recipe-photo">` : '';
-                const checkboxHtml = selectMode ? `
-                    <div style="margin-bottom: 0.5rem;">
-                        <input type="checkbox" class="select-checkbox" onchange="toggleRecipeSelection(${recipe.id || recipe.publicId})" ${Array.from(selectedRecipes).some(selectedId => parseFloat(selectedId) === parseFloat(recipe.id || recipe.publicId)) ? 'checked' : ''}>
-                        <label>Select this recipe</label>
-                    </div>
-                ` : '';
-                
-                const authorInfo = showingPublicRecipes ? `<p style="font-size: 0.8em; color: #888; font-style: italic;">Shared by: ${recipe.addedBy || 'Anonymous'}</p>` : '';
-                const deleteButton = showingPublicRecipes ? '' : `<button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545;" data-recipe-id="${recipe.id}">Delete 🗑️</button>`;
-                
-                card.innerHTML = `
-                    ${checkboxHtml}
-                    ${photoHtml}
-                    <div class="recipe-header">
-                        <h3 class="recipe-title">${recipe.name}</h3>
-                        <span>🍽️</span>
-                    </div>
-                    <div class="tag">${recipe.category}</div>
-                    <p style="font-size: 0.9em; color: #666; margin: 0.5rem 0;">Added: ${recipeDate}</p>
-                    ${authorInfo}
-                    <p><strong>Ingredients:</strong></p>
-                    <p>${recipe.ingredients.split('\n').slice(0,3).join(', ')}${
-                        recipe.ingredients.split('\n').length > 3 ? '...' : ''
-                    }</p>
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
-                        <button onclick="viewRecipe(${recipe.id || recipe.publicId}, ${showingPublicRecipes}); event.stopPropagation();" style="background: #28a745;">View 👁️</button>
-                        ${deleteButton}
-                    </div>
-                `;
-                
-                // Make entire card clickable (except in select mode)
-                if (!selectMode) {
-                    card.addEventListener('click', () => viewRecipe(recipe.id || recipe.publicId, showingPublicRecipes));
-                }
-                recipeList.appendChild(card);
-            });
-
-            updateRecipeCount(filteredRecipes.length);
+            detailsView.style.display = 'block';
+            backBtn.style.visibility = 'visible';
+            
+            localStorage.setItem('lastViewedRecipe', recipe.id);
         }
 
-        function renderCategoryView(searchTerm = '') {
-            const recipeList = document.getElementById('recipeList');
+        function showCategoryView(searchTerm = '') {
             const categoryView = document.getElementById('categoryView');
-            recipeList.style.display = 'none';
-            categoryView.style.display = 'block';
-            categoryView.innerHTML = '';
-
-            const currentRecipes = getCurrentRecipes();
-            const filteredRecipes = currentRecipes.filter(recipe => 
-                recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                recipe.category.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-
-            if (filteredRecipes.length === 0) {
-                const emptyMessage = showingPublicRecipes ? 
-                    'No community recipes yet! Add your recipes to share with everyone 🌍' :
-                    'No recipes in your hive yet! 🍯';
-                categoryView.innerHTML = `
-                    <div style="text-align: center; padding: 3rem; color: #8a2be2;">
-                        <h3>🐝 ${emptyMessage}</h3>
-                        <p>Click the + button to add your first delicious recipe</p>
-                    </div>
-                `;
-                updateRecipeCount(0);
-                return;
-            }
-
-            // Group recipes by category
-            const recipesByCategory = {};
-            filteredRecipes.forEach(recipe => {
-                const category = recipe.category || 'Uncategorized';
-                if (!recipesByCategory[category]) {
-                    recipesByCategory[category] = [];
-                }
-                recipesByCategory[category].push(recipe);
+            const detailsView = document.getElementById('recipeDetails');
+            const backBtn = document.getElementById('backBtn');
+            
+            const categories = {};
+            Object.keys(categoryEmojis).forEach(cat => categories[cat] = []);
+            
+            recipes.forEach(recipe => {
+                if (!recipe.name.toLowerCase().includes(searchTerm.toLowerCase())) return;
+                categories[recipe.category].push(recipe);
             });
 
-            // Sort categories alphabetically
-            const sortedCategories = Object.keys(recipesByCategory).sort();
+            Object.keys(categories).forEach(cat => {
+                categories[cat].sort((a, b) => a.name.localeCompare(b.name));
+            });
 
-            sortedCategories.forEach(category => {
-                const categorySection = document.createElement('div');
-                categorySection.className = 'category-section';
-                
-                // Sort recipes within category alphabetically
-                const sortedRecipes = recipesByCategory[category].sort((a, b) => 
-                    a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-                );
-
-                categorySection.innerHTML = `
-                    <div class="category-header">
-                        ${category} (${sortedRecipes.length} recipe${sortedRecipes.length !== 1 ? 's' : ''})
-                    </div>
-                    ${sortedRecipes.map(recipe => {
-                        const recipeDate = new Date(recipe.date).toLocaleDateString();
-                        const authorInfo = showingPublicRecipes ? ` • Shared by: ${recipe.addedBy || 'Anonymous'}` : '';
-                        const deleteButton = showingPublicRecipes ? '' : `<button onclick="deleteRecipe(${recipe.id}); event.stopPropagation();" style="background: #dc3545; padding: 0.4rem 0.8rem;" data-recipe-id="${recipe.id}">🗑️</button>`;
-                        const editButton = showingPublicRecipes ? '' : `<button onclick="editRecipe(${recipe.id}); event.stopPropagation();" style="background: #ffa500; padding: 0.4rem 0.8rem;">✏️</button>`;
-                        
-                        return `
-                            <div class="recipe-list-item" onclick="viewRecipe(${recipe.id || recipe.publicId}, ${showingPublicRecipes})">
-                                <div>
-                                    <div class="recipe-list-name">${recipe.name}</div>
-                                    <div class="recipe-list-date">Added: ${recipeDate}${authorInfo}</div>
-                                </div>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    ${editButton}
-                                    ${deleteButton}
-                                </div>
+            categoryView.innerHTML = Object.keys(categoryEmojis).map(category => `
+                <div class="category-section">
+                    <h2 class="category-title">
+                        ${categoryEmojis[category]} ${category}
+                    </h2>
+                    <div class="recipe-list">
+                        ${categories[category].map(recipe => `
+                            <div class="recipe-item" onclick='showRecipeDetails(${JSON.stringify(recipe)})'>
+                                ${recipe.name}
+                                <span style="color:var(--muted)">→</span>
                             </div>
-                        `;
-                    }).join('')}
-                `;
-                
-                categoryView.appendChild(categorySection);
-            });
-
-            updateRecipeCount(filteredRecipes.length);
-        }
-
-        function updateRecipeCount(count) {
-            const countDisplay = document.getElementById('recipeCount');
-            if (countDisplay) {
-                const collectionName = showingPublicRecipes ? 'community' : 'personal';
-                countDisplay.textContent = `${count} ${collectionName} recipe${count !== 1 ? 's' : ''} found`;
-            }
-        }
-
-        function deleteRecipe(id) {
-            // Convert ID to number for comparison
-            const numericId = parseFloat(id);
-            const recipe = recipes.find(r => parseFloat(r.id) === numericId);
-            
-            if (!recipe) {
-                showNotification('Recipe not found!', 'error');
-                return;
-            }
-            
-            const recipeName = recipe.name;
-            
-            // Create custom confirmation dialog with clear yes/no question
-            const confirmDelete = confirm(`Delete this recipe?\n\n"${recipeName}"\n\nClick OK to delete or Cancel to keep the recipe.`);
-            
-            if (confirmDelete) {
-                const index = recipes.findIndex(r => parseFloat(r.id) === numericId);
-                
-                if (index !== -1) {
-                    recipes.splice(index, 1);
-                    saveRecipes();
-                    renderRecipes();
-                    showNotification(`"${recipeName}" has been deleted!`, 'success');
-                } else {
-                    showNotification('Error: Recipe could not be deleted.', 'error');
-                }
-            }
-        }
-
-        function viewRecipe(id, isPublic = false) {
-            const currentRecipes = isPublic ? publicRecipes : recipes;
-            const recipe = currentRecipes.find(r => (r.id == id || r.publicId == id)); // Use == instead of === for loose comparison
-            if (!recipe) return;
-
-            const recipeDate = new Date(recipe.date).toLocaleDateString();
-            const ingredientsList = recipe.ingredients.split('\n').filter(i => i.trim()).map(i => `<li>${i.trim()}</li>`).join('');
-            const instructionsList = recipe.instructions.split('\n').filter(i => i.trim()).map((instruction, index) => `<li><strong>Step ${index + 1}:</strong> ${instruction.trim()}</li>`).join('');
-            const photoHtml = recipe.photo ? `<img src="${recipe.photo}" alt="${recipe.name}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 10px; margin-bottom: 1rem;">` : '';
-            
-            const authorInfo = isPublic ? `<p style="font-size: 0.9em; color: #666; margin-bottom: 1rem; background: #e8f5e8; padding: 0.5rem; border-radius: 5px;">🌍 Shared by: ${recipe.addedBy || 'Anonymous User'}</p>` : '';
-            const editButton = isPublic ? '' : `<button onclick="editRecipe(${recipe.id})" style="background: #ffa500;">Edit Recipe ✏️</button>`;
-            const copyButton = `<button onclick="copyRecipeToPersonal(${isPublic ? recipe.publicId : recipe.id}, ${isPublic})" style="background: #17a2b8;">${isPublic ? 'Copy to My Recipes 📋' : 'Share to Community 🌍'}</button>`;
-
-            document.getElementById('modalRecipeContent').innerHTML = `
-                <h2 style="color: var(--primary); margin-bottom: 0.5rem;">${recipe.name}</h2>
-                <div class="tag" style="margin-bottom: 1rem;">${recipe.category}</div>
-                <p style="font-size: 0.9em; color: #666; margin-bottom: 1.5rem;">Added: ${recipeDate}</p>
-                ${authorInfo}
-                ${photoHtml}
-                
-                <h3 style="color: var(--primary);">🥘 Ingredients:</h3>
-                <ul style="margin-bottom: 1.5rem;">${ingredientsList}</ul>
-                
-                <h3 style="color: var(--primary);">📋 Instructions:</h3>
-                <ol style="margin-bottom: 1.5rem;">${instructionsList}</ol>
-                
-                <div style="text-align: center; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                    ${editButton}
-                    ${copyButton}
-                    <button onclick="closeRecipeModal()" style="background: var(--primary);">Close 📖</button>
-                </div>
-            `;
-            
-            document.getElementById('recipeModal').style.display = 'block';
-        }
-
-        function closeRecipeModal() {
-            document.getElementById('recipeModal').style.display = 'none';
-        }
-
-        function copyRecipeToPersonal(id, fromPublic = false) {
-            const sourceRecipes = fromPublic ? publicRecipes : recipes;
-            const targetRecipes = fromPublic ? recipes : publicRecipes;
-            const recipe = sourceRecipes.find(r => (r.id == id || r.publicId == id));
-            
-            if (!recipe) return;
-            
-            if (fromPublic) {
-                // Copy from public to personal
-                const newRecipe = {
-                    id: Date.now(),
-                    name: recipe.name,
-                    category: recipe.category,
-                    ingredients: recipe.ingredients,
-                    instructions: recipe.instructions,
-                    photo: recipe.photo,
-                    date: new Date().toISOString(),
-                    copiedFrom: 'community'
-                };
-                recipes.unshift(newRecipe);
-                saveRecipes();
-                showNotification(`"${recipe.name}" copied to your personal recipes! 📋`, 'success');
-            } else {
-                // Share from personal to public
-                addToPublicRecipes(recipe);
-                showNotification(`"${recipe.name}" shared to community recipes! 🌍`, 'success');
-            }
-            
-            renderRecipes();
-        }
-
-        function editRecipe(id) {
-            const recipe = recipes.find(r => r.id == id); // Use == instead of === for loose comparison
-            if (!recipe) return;
-
-            const recipeDate = new Date(recipe.date).toLocaleDateString();
-
-            document.getElementById('modalRecipeContent').innerHTML = `
-                <h2 style="color: var(--primary); margin-bottom: 1rem;">✏️ Edit Recipe</h2>
-                <p style="font-size: 0.9em; color: #666; margin-bottom: 1.5rem;">Added: ${recipeDate}</p>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Recipe Name:</label>
-                    <input type="text" id="editRecipeName" value="${recipe.name}" style="width: 100%; padding: 0.8rem; border: 2px solid var(--secondary); border-radius: 8px;">
-                </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Category:</label>
-                    <input type="text" id="editRecipeCategory" value="${recipe.category}" style="width: 100%; padding: 0.8rem; border: 2px solid var(--secondary); border-radius: 8px;">
-                </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Recipe Photo (optional):</label>
-                    <input type="file" id="editRecipePhoto" accept="image/*" style="margin-bottom: 0.5rem;">
-                    ${recipe.photo ? `<div style="margin-bottom: 0.5rem;"><img src="${recipe.photo}" alt="Current photo" style="max-width: 200px; height: 150px; object-fit: cover; border-radius: 8px;"><br><small style="color: #666;">Current photo</small></div>` : ''}
-                    <img id="editPhotoPreview" style="max-width: 200px; height: 150px; object-fit: cover; border-radius: 8px; margin-top: 0.5rem; display: none;" alt="New photo preview">
-                </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Ingredients (one per line):</label>
-                    <textarea id="editIngredients" rows="8" style="width: 100%; padding: 0.8rem; border: 2px solid var(--secondary); border-radius: 8px;">${recipe.ingredients}</textarea>
-                </div>
-                
-                <div style="margin-bottom: 2rem;">
-                    <label style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: var(--primary);">Instructions:</label>
-                    <textarea id="editInstructions" rows="8" style="width: 100%; padding: 0.8rem; border: 2px solid var(--secondary); border-radius: 8px;">${recipe.instructions}</textarea>
-                </div>
-                
-                <div style="text-align: center; display: flex; gap: 1rem; justify-content: center;">
-                    <button onclick="saveEditedRecipe(${recipe.id})" style="background: #28a745;">Save Changes 💾</button>
-                    <button onclick="viewRecipe(${recipe.id})" style="background: #6c757d;">Cancel ❌</button>
-                </div>
-            `;
-        }
-
-        async function saveEditedRecipe(id) {
-            const recipeIndex = recipes.findIndex(r => r.id == id); // Use == instead of === for loose comparison
-            if (recipeIndex === -1) return;
-
-            const updatedName = document.getElementById('editRecipeName').value.trim();
-            const updatedCategory = document.getElementById('editRecipeCategory').value.trim();
-            const updatedIngredients = document.getElementById('editIngredients').value.trim();
-            const updatedInstructions = document.getElementById('editInstructions').value.trim();
-            const photoFile = document.getElementById('editRecipePhoto').files[0];
-
-            if (!updatedName) {
-                showNotification('Please enter a recipe name!', 'error');
-                return;
-            }
-
-            // Handle photo upload
-            let photoData = recipes[recipeIndex].photo; // Keep existing photo by default
-            if (photoFile) {
-                photoData = await handlePhotoUpload(photoFile);
-            }
-
-            recipes[recipeIndex] = {
-                ...recipes[recipeIndex],
-                name: updatedName,
-                category: updatedCategory || 'Uncategorized',
-                ingredients: updatedIngredients || 'No ingredients listed',
-                instructions: updatedInstructions || 'No instructions provided',
-                photo: photoData,
-                lastModified: new Date().toISOString()
-            };
-
-            saveRecipes();
-            renderRecipes();
-            viewRecipe(id); // Show the updated recipe
-            showNotification('Recipe updated successfully! 🎉', 'success');
-        }
-
-
-
-
-        function copyRecipeText() {
-            const recipeTextArea = document.getElementById('recipeText');
-            recipeTextArea.select();
-            recipeTextArea.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(recipeTextArea.value).then(() => {
-                showNotification('Recipe text copied to clipboard! 📝', 'success');
-            }).catch(() => {
-                showNotification('Please manually copy the recipe text above.', 'info');
-            });
-        }
-
-        function formatRecipeText(recipe) {
-            return `${recipe.name}
-
-Category: ${recipe.category}
-
-🥘 Ingredients:
-${recipe.ingredients.split('\n').filter(i => i.trim()).map(i => `• ${i.trim()}`).join('\n')}
-
-📋 Instructions:
-${recipe.instructions.split('\n').filter(i => i.trim()).map((instruction, index) => `${index + 1}. ${instruction.trim()}`).join('\n')}
-
----
-Shared from Donna's Recipe Hive 🐝🍯`;
-        }
-
-        function copyShareUrl() {
-            const shareUrlInput = document.getElementById('shareUrl');
-            shareUrlInput.select();
-            shareUrlInput.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(shareUrlInput.value).then(() => {
-                showNotification('Export link copied to clipboard! 📋', 'success');
-            }).catch(() => {
-                showNotification('Please manually copy the link above.', 'info');
-            });
-        }
-
-        function shareToWhatsApp(url) {
-            const message = `Check out these delicious recipes! 🍽️\n\n${decodeURIComponent(url)}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
-        }
-
-        function shareToEmail(url, title) {
-            const subject = `Recipes: ${decodeURIComponent(title)}`;
-            const body = `Hi! I wanted to share these amazing recipes with you:\n\n${decodeURIComponent(url)}\n\nEnjoy cooking! 🍽️`;
-            window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
-        }
-
-
-
-
-        // Bulk selection functions
-        function toggleRecipeSelection(id) {
-            // Convert id to ensure consistent comparison
-            const numericId = parseFloat(id);
-            const hasId = Array.from(selectedRecipes).some(selectedId => parseFloat(selectedId) === numericId);
-            
-            if (hasId) {
-                // Remove all matching IDs
-                selectedRecipes = new Set(Array.from(selectedRecipes).filter(selectedId => parseFloat(selectedId) !== numericId));
-            } else {
-                selectedRecipes.add(numericId);
-            }
-            updateSelectedCount();
-        }
-
-        function selectAllRecipes() {
-            recipes.forEach(recipe => selectedRecipes.add(parseFloat(recipe.id)));
-            renderRecipes();
-            updateSelectedCount();
-        }
-
-        function deselectAllRecipes() {
-            selectedRecipes.clear();
-            renderRecipes();
-            updateSelectedCount();
-        }
-
-        function updateSelectedCount() {
-            document.getElementById('selectedCount').textContent = selectedRecipes.size;
-        }
-
-        function toggleSelectMode() {
-            selectMode = !selectMode;
-            selectedRecipes.clear();
-            
-            const bulkActions = document.getElementById('bulkActions');
-            const toggleBtn = document.getElementById('toggleSelectBtn');
-            
-            if (selectMode) {
-                bulkActions.style.display = 'flex';
-                toggleBtn.textContent = '❌ Exit Select';
-                toggleBtn.style.background = '#dc3545';
-            } else {
-                bulkActions.style.display = 'none';
-                toggleBtn.textContent = '☑️ Select Mode';
-                toggleBtn.style.background = '#17a2b8';
-            }
-            
-            renderRecipes();
-            updateSelectedCount();
-        }
-
-        function exitSelectMode() {
-            selectMode = false;
-            selectedRecipes.clear();
-            document.getElementById('bulkActions').style.display = 'none';
-            document.getElementById('toggleSelectBtn').textContent = '☑️ Select Mode';
-            document.getElementById('toggleSelectBtn').style.background = '#17a2b8';
-            renderRecipes();
-        }
-
-
-        function exportAllRecipes() {
-            if (recipes.length === 0) {
-                showNotification('No recipes to export.', 'info');
-                return;
-            }
-            
-            const allRecipeData = recipes.map(recipe => ({
-                name: recipe.name,
-                category: recipe.category,
-                ingredients: recipe.ingredients,
-                instructions: recipe.instructions,
-                photo: recipe.photo
-            }));
-            
-            showMultipleRecipeShare(allRecipeData, 'Export All Recipes from Donna\'s Recipe Hive');
-        }
-
-        function showMultipleRecipeShare(recipesData, title) {
-            const encodedRecipes = btoa(JSON.stringify(recipesData));
-            const shareUrl = `${window.location.origin}${window.location.pathname}?recipes=${encodedRecipes}`;
-            
-            const recipeText = recipesData.map(recipe => formatRecipeText(recipe)).join('\n\n' + '='.repeat(50) + '\n\n');
-            
-            document.getElementById('modalRecipeContent').innerHTML = `
-                <h2 style="color: var(--primary); margin-bottom: 1rem;">� Export Multiple Recipes: ${title}</h2>
-                
-                <div style="margin-bottom: 2rem;">
-                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Export Link (${recipesData.length} recipes):</h3>
-                    <div style="background: #f8f9fa; border: 2px solid var(--secondary); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                        <input type="text" id="shareUrl" value="${shareUrl}" 
-                               style="width: 100%; border: none; background: transparent; font-size: 0.9rem;" readonly>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button onclick="copyShareUrl()" style="background: #28a745;">Copy Link 📋</button>
-                        <button onclick="shareToWhatsApp('${encodeURIComponent(shareUrl)}')" style="background: #25D366;">WhatsApp 📱</button>
-                        <button onclick="shareToEmail('${encodeURIComponent(shareUrl)}', '${encodeURIComponent(title)}')" style="background: #dc3545;">Email 📧</button>
+                        `).join('') || '<p style="color: var(--muted)">No recipes yet</p>'}
                     </div>
                 </div>
+            `).join('');
 
-                <div style="margin-bottom: 2rem;">
-                    <h3 style="color: var(--primary); margin-bottom: 0.5rem;">All Recipes Text (Copy & Paste):</h3>
-                    <textarea id="recipeText" rows="15" readonly 
-                              style="width: 100%; border: 2px solid var(--secondary); border-radius: 8px; padding: 1rem; font-size: 0.9rem;">${recipeText}</textarea>
-                    <button onclick="copyRecipeText()" style="background: #17a2b8; margin-top: 0.5rem;">Copy All Recipe Text 📝</button>
-                </div>
-                
-                <div style="text-align: center;">
-                    <button onclick="closeRecipeModal()" style="background: #6c757d;">Close ❌</button>
-                </div>
-            `;
-            
-            document.getElementById('recipeModal').style.display = 'block';
+            categoryView.style.display = 'block';
+            detailsView.style.display = 'none';
+            backBtn.style.visibility = 'hidden';
         }
-
-        // Event Listeners
-        document.getElementById('addRecipeBtn').addEventListener('click', () => {
-            document.getElementById('recipeForm').classList.remove('hidden');
-            
-            // Clear all form fields including photo preview
-            document.getElementById('recipeName').value = '';
-            document.getElementById('recipeCategory').value = '';
-            document.getElementById('ingredients').value = '';
-            document.getElementById('instructions').value = '';
-            document.getElementById('recipePhoto').value = '';
-            document.getElementById('photoPreview').style.display = 'none';
-        });
-
-        document.getElementById('cancelRecipe').addEventListener('click', () => {
-            document.getElementById('recipeForm').classList.add('hidden');
-            
-            // Clear form fields
-            document.getElementById('recipeName').value = '';
-            document.getElementById('recipeCategory').value = '';
-            document.getElementById('ingredients').value = '';
-            document.getElementById('instructions').value = '';
-            document.getElementById('recipePhoto').value = '';
-            document.getElementById('photoPreview').style.display = 'none';
-        });
-
-        document.getElementById('saveRecipe').addEventListener('click', async (e) => {
-            e.preventDefault();
-            
-            // Validate required fields
-            const recipeName = document.getElementById('recipeName').value.trim();
-            const recipeCategory = document.getElementById('recipeCategory').value.trim();
-            const ingredients = document.getElementById('ingredients').value.trim();
-            const instructions = document.getElementById('instructions').value.trim();
-            const photoFile = document.getElementById('recipePhoto').files[0];
-            
-            if (!recipeName) {
-                showNotification('Please enter a recipe name!', 'error');
-                return;
-            }
-            
-            const newRecipe = {
-                name: recipeName,
-                category: recipeCategory || 'Uncategorized',
-                ingredients: ingredients || 'No ingredients listed',
-                instructions: instructions || 'No instructions provided'
-            };
-            
-            await addRecipe(newRecipe, photoFile);
-            document.getElementById('recipeForm').classList.add('hidden');
-            
-            // Clear form fields
-            document.getElementById('recipeName').value = '';
-            document.getElementById('recipeCategory').value = '';
-            document.getElementById('ingredients').value = '';
-            document.getElementById('instructions').value = '';
-            document.getElementById('recipePhoto').value = '';
-            document.getElementById('photoPreview').style.display = 'none';
-            
-            showNotification(`"${recipeName}" saved successfully! 📝`, 'success');
-        });
 
         document.getElementById('searchRecipes').addEventListener('input', (e) => {
-            renderRecipes(e.target.value);
+            showCategoryView(e.target.value);
         });
 
-        // Photo preview functionality
-        document.getElementById('recipePhoto').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const preview = document.getElementById('photoPreview');
-            
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+        document.getElementById('backBtn').addEventListener('click', () => {
+            showCategoryView();
+        });
+
+        if (lastViewedId) {
+            const lastRecipe = recipes.find(r => r.id === lastViewedId);
+            if (lastRecipe) {
+                showRecipeDetails(lastRecipe);
             } else {
-                preview.style.display = 'none';
+                showCategoryView();
             }
-        });
-
-        // Edit photo preview functionality (delegated event listener)
-        document.addEventListener('change', function(e) {
-            if (e.target && e.target.id === 'editRecipePhoto') {
-                const file = e.target.files[0];
-                const preview = document.getElementById('editPhotoPreview');
-                
-                if (file && preview) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        preview.src = e.target.result;
-                        preview.style.display = 'block';
-                    };
-                    reader.readAsDataURL(file);
-                } else if (preview) {
-                    preview.style.display = 'none';
-                }
-            }
-        });
-
-        // View toggle functionality
-        document.getElementById('toggleViewBtn').addEventListener('click', () => {
-            currentView = 'category';
-            document.getElementById('toggleViewBtn').style.background = '#ffd700';
-            document.getElementById('toggleGridBtn').style.background = '#6c757d';
-            renderRecipes(document.getElementById('searchRecipes').value);
-        });
-
-        document.getElementById('toggleGridBtn').addEventListener('click', () => {
-            currentView = 'grid';
-            document.getElementById('toggleGridBtn').style.background = '#ffd700';
-            document.getElementById('toggleViewBtn').style.background = '#6c757d';
-            renderRecipes(document.getElementById('searchRecipes').value);
-        });
-
-        // Recipe collection toggle functionality
-        document.getElementById('myRecipesBtn').addEventListener('click', () => {
-            showingPublicRecipes = false;
-            document.getElementById('myRecipesBtn').style.background = 'var(--primary)';
-            document.getElementById('publicRecipesBtn').style.background = '#6c757d';
-            renderRecipes(document.getElementById('searchRecipes').value);
-        });
-
-        document.getElementById('publicRecipesBtn').addEventListener('click', () => {
-            showingPublicRecipes = true;
-            document.getElementById('publicRecipesBtn').style.background = 'var(--primary)';
-            document.getElementById('myRecipesBtn').style.background = '#6c757d';
-            renderRecipes(document.getElementById('searchRecipes').value);
-        });
-
-        // Select mode toggle
-        document.getElementById('toggleSelectBtn').addEventListener('click', toggleSelectMode);
-
-        // Close modal when clicking outside
-        window.addEventListener('click', (e) => {
-            const modal = document.getElementById('recipeModal');
-            if (e.target === modal) {
-                closeRecipeModal();
-            }
-        });
-
-        // Add event delegation for delete buttons as backup
-        document.addEventListener('click', (e) => {
-            if (e.target.dataset.recipeId && e.target.textContent.includes('Delete')) {
-                e.stopPropagation();
-                const recipeId = e.target.dataset.recipeId;
-                console.log('Event delegation delete triggered for ID:', recipeId);
-                deleteRecipe(recipeId);
-            }
-        });
-
-        // Initial render
-        renderRecipes();
-        
-        // Check for shared recipe in URL
-        checkForSharedRecipe();
+        } else {
+            showCategoryView();
+        }
     </script>
 </body>
 </html>
-
-
-
-
