@@ -217,47 +217,38 @@
             'Savory': '🍲'
         };
 
-       const recipes = [
-    {
-        id: 'cake1',
-        name: 'Chocolate Brownies',
-        category: 'Cakes',
-        servingInfo: 'Makes: 15\nPrep Time: 30 mins\nCook Time: 25-30 mins\nCost: 30p per serve',
-        ingredients: '225g Chocolate\n140g Butter\n3 Large eggs\n225g Caster Sugar\n100g Plain Flour\n1tsp Baking Powder\n1tsp Cocoa Powder',
-        instructions: '1. Preheat the oven to gas 4, 180°C, fan 160°C. Line a rectangular tin (27 x 17.5 x 3.5cm) with baking parchment\n2. Chop 175g chocolate and place in a small, heavy-based pan with butter. Melt over low heat, stirring occasionally\n3. Remove from heat and leave to cool\n4. Chop 50g chocolate into small chunks and set aside\n5. Whisk eggs and sugar with hand mixer in large bowl until thick, fluffy and doubled in volume\n6. Gently fold in cooled chocolate mixture\n7. Sift flour, baking powder and cocoa and fold in\n8. Carefully stir in chopped chocolate without over-mixing\n9. Pour into lined tin and spread to corners\n10. Bake 25-30 mins until middle is set and top slightly crusty\n11. Remove and leave until entirely cold before lifting from tin\n12. For icing: Finely chop chocolate, heat with cream and sugar until melted\n13. Pour in 1-1½ tablespoons boiling water to thin\n14. Drizzle over brownies\n15. When set, cut into 15 squares\n\nServe with Madagascan Vanilla Ice Cream'
-    },
-    {
-        id: 'cake2',
-        name: 'Banana Bread',
-        category: 'Cakes',
-        ingredients: '200g self raising flour\n16g cornflour\n1 tsp baking soda\n3/4 tsp baking powder\n3/4 tsp cinnamon\n3 bananas\n56g spread\n52g oil\n1 tsp vanilla\n1 egg',
-        instructions: '1. Melt the spread and mix all the wet ingredients together\n2. Mix all dry ingredients together\n3. Add the ingredients together until combined\n4. Grease or line a loaf tin\n5. Pour mixture into loaf tin and bake at 160°C for approximately 45 minutes'
-    },
-    {
-        id: 'cake3',
-        name: 'Chocolate Guinness Cake',
-        category: 'Cakes',
-        servingInfo: 'Makes: about 12 slices\nPrep Time: —\nCook Time: 45 mins – 1 hour',
-        ingredients: 'FOR THE CAKE:\n250ml Guinness\n250g Unsalted Butter\n75g Cocoa Powder\n400g Caster Sugar\n142ml Sour Cream\n2 Large Eggs\n1 tbsp Vanilla Extract\n275g Plain Flour\n2½ tsp Bicarbonate of Soda\n\nFOR THE TOPPING:\n300g Cream Cheese\n150g Icing Sugar\n125ml Double Cream (or Whipping Cream)',
-        instructions: '1. Preheat the oven to gas mark 4/180°C/350°F. Butter and line a 23cm (9 inch) springform tin\n2. Pour the Guinness into a large wide saucepan, add the butter in slices, and heat until melted\n3. Whisk in the cocoa powder and sugar\n4. In a separate bowl, beat the sour cream with the eggs and vanilla extract\n5. Pour the sour cream mixture into the buttery Guinness mixture and whisk in the flour and bicarbonate of soda\n6. Pour the batter into the prepared tin and bake for 45 minutes to 1 hour\n7. Leave to cool completely in the tin on a cooling rack\n8. For the icing: lightly whip the cream cheese until smooth, then sift over the icing sugar and beat together\n9. Add the cream and beat again until it reaches a spreadable consistency\n10. Ice only the top of the cake so it resembles the frothy head of a pint of Guinness',
-        notes: 'This cake is dark, moist, and rich with a gentle Guinness tang. It tastes delicious plain or with the cream cheese frosting.'
-    },
-    {
-        id: 'savory1',
-        name: 'Katsu Curry Sauce',
-        category: 'Savory',
-        ingredients: '2-3 tbsp vegetable oil\n1 onion, finely chopped\n1 garlic clove, crushed\n2.5cm piece of ginger, peeled + grated\n1 tsp turmeric\n2 heaped tbsp mild curry powder\n1 tbsp plain flour\n300ml chicken or veg stock\n100ml coconut milk\n1 tsp light soy sauce\n1 tsp sugar, to taste',
-        instructions: '1. Heat oil in pan\n2. Add chopped onion and cook until softened\n3. Add crushed garlic and grated ginger\n4. Add turmeric and curry powder\n5. Add flour and cook for 1 minute\n6. Gradually add stock while stirring\n7. Add coconut milk\n8. Add soy sauce and sugar\n9. Simmer until thickened'
-    },
-    {
-        id: 'savory2',
-        name: 'Pizza Dough',
-        category: 'Savory',
-        ingredients: '400g plain flour, plus extra to dust\n1 x 7g sachet fast action dried yeast\n1 tsp fine sea salt\n1 tsp caster sugar\n2 tbsp olive oil, plus extra to drizzle\n1 tbsp cornmeal, polenta or semolina, to roll out',
-        instructions: '1. Preheat oven to hottest setting (240°C, fan 220°C, gas 9)\n2. Heat pizza stones or baking trays in oven\n3. Mix flour, yeast, salt and sugar in bowl\n4. Make well in centre, add oil and 225ml water\n5. Form dough and knead for 1 minute until smooth\n6. Rest under bowl while preparing toppings\n7. Roll to 25cm diameter on floured surface\n8. Place on cornmeal-dusted baking paper\n9. Stretch to 30cm, create thicker crust at edges\n10. Add toppings and drizzle with oil\n11. Rest 10-15 minutes\n12. Bake 10-15 minutes until golden'
-    }
-];
-        
+        const recipes = [
+            {
+                id: 'cake1',
+                name: 'Chocolate Brownies',
+                category: 'Cakes',
+                servingInfo: 'Makes: 15\nPrep Time: 30 mins\nCook Time: 25-30 mins\nCost: 30p per serve',
+                ingredients: '225g Chocolate\n140g Butter\n3 Large eggs\n225g Caster Sugar\n100g Plain Flour\n1tsp Baking Powder\n1tsp Cocoa Powder',
+                instructions: '1. Preheat the oven to gas 4, 180°C, fan 160°C...\n2. Follow the rest of the recipe as listed.'
+            },
+            {
+                id: 'cake2',
+                name: 'Banana Bread',
+                category: 'Cakes',
+                ingredients: '200g self raising flour\n16g cornflour\n1 tsp baking soda\n3/4 tsp baking powder\n3/4 tsp cinnamon\n3 bananas\n56g spread\n52g oil\n1 tsp vanilla\n1 egg',
+                instructions: '1. Melt the spread and mix all the wet ingredients together\n2. Mix all dry ingredients together\n3. Add the ingredients together until combined\n4. Grease or line a loaf tin\n5. Pour mixture into loaf tin and bake at 160°C for approximately 45 minutes',
+                umaRating: true
+            },
+            {
+                id: 'buns1',
+                name: 'Tangy Citrus Sticky Chelsea Buns',
+                category: 'Buns',
+                ingredients: '450ml whole milk\n60g unsalted butter\n650g strong white bread flour\n100g wholemeal flour\n15g salt\n1½ tsp fast-action dried yeast\n2 large eggs\nZest + juice of 1 lemon\n125g icing sugar\n40g melted butter\n1 beaten egg + milk for wash\nFor filling: peel from 1 sweet-cured lemon (optional)\n100g mixed peel\n100g dried fruit\n50g dried apricots\n50g dates\n120g soft brown sugar\n1 tsp mixed spice\n1 tsp cinnamon\nFor glaze: juice of 2 lemons, 50ml lemonade, 125g sugar, 70g sweet-cured lemon pulp (optional)',
+                instructions: '1. Warm milk + butter until melted\n2. Mix flours, salt, and yeast separately\n3. Add eggs to warm milk, then combine with flour to form dough\n4. Knead until smooth, cover and rise 1-2 hrs\n5. Mix filling fruits + spices\n6. Roll dough to rectangle, brush with butter, spread sugar + fruit\n7. Roll tightly, slice into 12 pieces, prove 45-60 mins\n8. Brush with egg wash, bake 30 mins at 200°C/fan 180°C/gas 6\n9. Boil glaze ingredients 5 mins to form syrup\n10. Brush buns with glaze and drizzle icing when cool'
+            },
+            {
+                id: 'savory1',
+                name: 'Katsu Curry Sauce',
+                category: 'Savory',
+                ingredients: '2-3 tbsp vegetable oil\n1 onion, finely chopped\n1 garlic clove\n2.5cm ginger\n1 tsp turmeric\n2 tbsp curry powder\n1 tbsp flour\n300ml stock\n100ml coconut milk\n1 tsp soy sauce\n1 tsp sugar',
+                instructions: '1. Heat oil, cook onion\n2. Add garlic + ginger\n3. Add spices and flour\n4. Add stock + coconut milk\n5. Add soy + sugar, simmer until thickened'
+            }
+        ];
 
         let lastViewedId = localStorage.getItem('lastViewedRecipe');
 
